@@ -69,13 +69,18 @@ struct SettingsView: View {
         ) {
             VStack(alignment: .leading, spacing: NemrionScale.space3) {
                 HStack(alignment: .top, spacing: NemrionScale.space3) {
-                    Button {
-                        handleRuntimeAction()
-                    } label: {
-                        runtimeStatusRow
+                    Group {
+                        if runtimeActionDisabled {
+                            runtimeStatusRow
+                        } else {
+                            Button {
+                                handleRuntimeAction()
+                            } label: {
+                                runtimeStatusRow
+                            }
+                            .buttonStyle(.plain)
+                        }
                     }
-                    .buttonStyle(.plain)
-                    .disabled(runtimeActionDisabled)
                     .frame(maxWidth: .infinity, alignment: .topLeading)
 
                     permissionStatus
@@ -92,7 +97,6 @@ struct SettingsView: View {
             value: app.dependencyStatus.title,
             icon: runtimeIcon,
             tint: runtimeColor,
-            emphasized: runtimeActionDisabled == false,
             trailingSymbol: runtimeActionDisabled ? nil : "arrow.up.right"
         )
     }
@@ -105,7 +109,6 @@ struct SettingsView: View {
                 value: app.permissionMonitor.isTrusted ? "Granted" : "Waiting for access",
                 icon: "nemrion.mark",
                 tint: app.permissionMonitor.isTrusted ? NemrionTheme.success : NemrionTheme.warning,
-                emphasized: false,
                 trailingSymbol: nil,
                 iconSize: 36
             )
@@ -306,7 +309,6 @@ struct SettingsView: View {
         value: String,
         icon: String,
         tint: Color,
-        emphasized: Bool,
         trailingSymbol: String?,
         iconSize: CGFloat = 32
     ) -> some View {
@@ -338,7 +340,7 @@ struct SettingsView: View {
         }
         .padding(NemrionScale.space3)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .nemrionSurface(emphasized ? .interactive : .tileStrong)
+        .nemrionSurface(.tileStrong)
     }
 
     private func statusPill(title: String, value: String, tint: Color) -> some View {
@@ -388,14 +390,7 @@ struct SettingsView: View {
     }
 
     private var runtimeColor: Color {
-        switch app.dependencyStatus {
-        case .ready:
-            return NemrionTheme.success
-        case .checking:
-            return NemrionTheme.warning
-        case .ollamaMissing, .ollamaStopped, .unavailable:
-            return NemrionTheme.warning
-        }
+        app.dependencyStatus == .ready ? NemrionTheme.success : NemrionTheme.textSecondary
     }
 }
 

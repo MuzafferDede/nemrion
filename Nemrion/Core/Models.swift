@@ -58,7 +58,7 @@ enum DependencyStatus: Equatable {
         case .checking:
             return "Checking local model runtime"
         case .ready:
-            return "Running"
+            return "Ollama Ready"
         case .ollamaMissing:
             return "Install Ollama"
         case .ollamaStopped:

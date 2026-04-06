@@ -2,6 +2,7 @@ import SwiftUI
 
 struct MenuBarView: View {
     @EnvironmentObject private var app: AppContainer
+    @Environment(\.dismiss) private var dismiss
 
     private var statusText: String {
         app.dependencyStatus.title
@@ -20,16 +21,10 @@ struct MenuBarView: View {
 
     private var topBar: some View {
         HStack(alignment: .top, spacing: NemrionScale.space2) {
-            VStack(alignment: .leading, spacing: 4) {
-                EyebrowLabel(text: "Menu Bar")
-
+            VStack(alignment: .leading, spacing: 0) {
                 Text("Nemrion")
                     .font(.system(size: 20, weight: .bold))
                     .foregroundStyle(NemrionTheme.textPrimary)
-
-                Text("Polish selected text anywhere on macOS")
-                    .font(.system(size: NemrionScale.textXs, weight: .medium))
-                    .foregroundStyle(NemrionTheme.textSecondary)
             }
 
             Spacer()
@@ -54,13 +49,18 @@ struct MenuBarView: View {
     }
 
     private var summary: some View {
-        Button {
-            handleRuntimeAction()
-        } label: {
-            runtimeRow
+        Group {
+            if runtimeActionDisabled {
+                runtimeRow
+            } else {
+                Button {
+                    handleRuntimeAction()
+                } label: {
+                    runtimeRow
+                }
+                .buttonStyle(.plain)
+            }
         }
-        .buttonStyle(.plain)
-        .disabled(runtimeActionDisabled)
     }
 
     private var runtimeRow: some View {
@@ -69,14 +69,13 @@ struct MenuBarView: View {
             title: "Runtime",
             subtitle: statusText,
             tint: runtimeColor,
-            emphasized: runtimeActionDisabled == false,
             showsArrow: runtimeActionDisabled == false
         )
-        .opacity(runtimeActionDisabled ? 0.92 : 1)
     }
 
     private var actionsRow: some View {
         Button {
+            dismiss()
             Task { await app.triggerPolishFlow(source: .menuBar) }
         } label: {
             compactActionTile(
@@ -102,14 +101,7 @@ struct MenuBarView: View {
     }
 
     private var runtimeColor: Color {
-        switch app.dependencyStatus {
-        case .ready:
-            return NemrionTheme.success
-        case .checking:
-            return NemrionTheme.warning
-        case .ollamaMissing, .ollamaStopped, .unavailable:
-            return NemrionTheme.warning
-        }
+        app.dependencyStatus == .ready ? NemrionTheme.success : NemrionTheme.textSecondary
     }
 
     private var runtimeActionDisabled: Bool {
@@ -144,7 +136,6 @@ struct MenuBarView: View {
         title: String,
         subtitle: String,
         tint: Color? = nil,
-        emphasized: Bool = false,
         showsArrow: Bool = false
     ) -> some View {
         return HStack(spacing: NemrionScale.space2) {
@@ -157,7 +148,7 @@ struct MenuBarView: View {
 
                 Text(subtitle)
                     .font(.system(size: NemrionScale.textXs, weight: .medium))
-                    .foregroundStyle(NemrionTheme.textSecondary)
+                    .foregroundStyle(tint ?? NemrionTheme.textSecondary)
             }
 
             Spacer()
@@ -170,7 +161,7 @@ struct MenuBarView: View {
         }
         .padding(12)
         .frame(maxWidth: .infinity, minHeight: 60, alignment: .leading)
-        .nemrionSurface(tileKind(emphasized: emphasized))
+        .nemrionSurface(.tile)
     }
 
     private func actionIcon(symbol: String, tint: Color? = nil) -> some View {
@@ -179,13 +170,6 @@ struct MenuBarView: View {
             tint: tint ?? NemrionTheme.textSecondary
         )
         .frame(width: 28, height: 28)
-    }
-
-    private func tileKind(emphasized: Bool) -> NemrionSurfaceKind {
-        if emphasized {
-            return .tileStrong
-        }
-        return .tile
     }
 
     private func toolbarIcon(symbol: String) -> some View {

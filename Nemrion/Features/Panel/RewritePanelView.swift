@@ -201,14 +201,12 @@ struct RewritePanelView: View {
                 .buttonStyle(PanelButtonStyle(variant: .secondary))
             }
 
-            if app.dependencyStatus != .ready {
-                Button {
-                    app.openSettingsWindow()
-                } label: {
-                    Label("Open Settings", systemImage: "gearshape")
-                }
-                .buttonStyle(PanelButtonStyle(variant: .secondary))
+            Button {
+                app.openSettingsWindow()
+            } label: {
+                Label("Open Settings", systemImage: "gearshape")
             }
+            .buttonStyle(PanelButtonStyle(variant: .secondary))
 
             Spacer()
 

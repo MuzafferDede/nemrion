@@ -19,7 +19,7 @@ enum NemrionTheme {
     static let inkOnAccent = Color.black.opacity(0.84)
     static let success = accent
     static let warning = accent
-    static let error = accent
+    static let error = brandMarkPrimary
 }
 
 enum NemrionScale {
