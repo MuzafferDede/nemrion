@@ -1,0 +1,104 @@
+{
+  "source": "/Users/x/Code/Nemrion/Nemrion/Features/Settings/SettingsView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Settings",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 26
+        }
+      },
+      {
+        "comment": "",
+        "key": "Keep runtime configuration small and get back to writing.",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 30
+        }
+      },
+      {
+        "comment": "",
+        "key": "Ollama",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 101
+        }
+      },
+      {
+        "comment": "",
+        "key": "Accessibility",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 145
+        }
+      },
+      {
+        "comment": "",
+        "key": "Granted",
+        "location": {
+          "startingColumn": 56,
+          "startingLine": 149
+        }
+      },
+      {
+        "comment": "",
+        "key": "Waiting for access",
+        "location": {
+          "startingColumn": 68,
+          "startingLine": 149
+        }
+      },
+      {
+        "comment": "",
+        "key": "Open Settings",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 160
+        }
+      },
+      {
+        "comment": "",
+        "key": "Local-first runtime using shared Ollama models.",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 185
+        }
+      },
+      {
+        "comment": "",
+        "key": "No models found",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 211
+        }
+      },
+      {
+        "comment": "",
+        "key": "Installed local model",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 226
+        }
+      },
+      {
+        "comment": "",
+        "key": "Shortcut",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 395
+        }
+      },
+      {
+        "comment": "",
+        "key": "Global trigger",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 399
+        }
+      }
+    ]
+  },
+  "version": 1
+}

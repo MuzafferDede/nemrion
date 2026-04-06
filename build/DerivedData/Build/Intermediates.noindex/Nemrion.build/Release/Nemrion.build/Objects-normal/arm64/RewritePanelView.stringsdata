@@ -1,0 +1,96 @@
+{
+  "source": "/Users/x/Code/Nemrion/Nemrion/Features/Panel/RewritePanelView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Polish",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 30
+        }
+      },
+      {
+        "comment": "",
+        "key": "Optional",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 78
+        }
+      },
+      {
+        "comment": "",
+        "key": "Additional prompt",
+        "location": {
+          "startingColumn": 23,
+          "startingLine": 72
+        }
+      },
+      {
+        "comment": "",
+        "key": "Make it friendlier, shorter, clearer, or more direct...",
+        "location": {
+          "startingColumn": 27,
+          "startingLine": 84
+        }
+      },
+      {
+        "comment": "",
+        "key": "Submit additional prompt",
+        "location": {
+          "startingColumn": 23,
+          "startingLine": 110
+        }
+      },
+      {
+        "comment": "",
+        "key": "Result",
+        "location": {
+          "startingColumn": 23,
+          "startingLine": 125
+        }
+      },
+      {
+        "comment": "",
+        "key": "Streaming",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 136
+        }
+      },
+      {
+        "comment": "",
+        "key": "Grant Access",
+        "location": {
+          "startingColumn": 27,
+          "startingLine": 176
+        }
+      },
+      {
+        "comment": "",
+        "key": "Open Settings",
+        "location": {
+          "startingColumn": 27,
+          "startingLine": 185
+        }
+      },
+      {
+        "comment": "",
+        "key": "Applying...",
+        "location": {
+          "startingColumn": 46,
+          "startingLine": 201
+        }
+      },
+      {
+        "comment": "",
+        "key": "Apply",
+        "location": {
+          "startingColumn": 62,
+          "startingLine": 201
+        }
+      }
+    ]
+  },
+  "version": 1
+}

@@ -1,0 +1,519 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		000000000000000000000101 /* NemrionApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000001 /* NemrionApp.swift */; };
+		000000000000000000000102 /* AppContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000002 /* AppContainer.swift */; };
+		000000000000000000000103 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000003 /* Models.swift */; };
+		000000000000000000000104 /* DesignSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000004 /* DesignSystem.swift */; };
+		000000000000000000000105 /* MenuBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000005 /* MenuBarView.swift */; };
+		000000000000000000000106 /* RewritePanelViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000006 /* RewritePanelViewModel.swift */; };
+		000000000000000000000107 /* RewritePanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000007 /* RewritePanelView.swift */; };
+		000000000000000000000108 /* SelectionBubbleController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000008 /* SelectionBubbleController.swift */; };
+		000000000000000000000109 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000009 /* SettingsView.swift */; };
+		00000000000000000000010A /* PermissionGuidanceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000000A /* PermissionGuidanceView.swift */; };
+		00000000000000000000010B /* PermissionMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000000B /* PermissionMonitor.swift */; };
+		00000000000000000000010C /* Provider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000000C /* Provider.swift */; };
+		00000000000000000000010D /* OllamaProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000000D /* OllamaProvider.swift */; };
+		00000000000000000000010E /* SelectionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000000E /* SelectionService.swift */; };
+		00000000000000000000010F /* HotKeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000000F /* HotKeyManager.swift */; };
+		000000000000000000000110 /* PanelCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000010 /* PanelCoordinator.swift */; };
+		000000000000000000000111 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000011 /* Info.plist */; };
+		000000000000000000000112 /* NemrionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000012 /* NemrionTests.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		000000000000000000000201 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 000000000000000000000300 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 000000000000000000000401;
+			remoteInfo = Nemrion;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		000000000000000000000001 /* NemrionApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NemrionApp.swift; sourceTree = "<group>"; };
+		000000000000000000000002 /* AppContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppContainer.swift; sourceTree = "<group>"; };
+		000000000000000000000003 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
+		000000000000000000000004 /* DesignSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignSystem.swift; sourceTree = "<group>"; };
+		000000000000000000000005 /* MenuBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarView.swift; sourceTree = "<group>"; };
+		000000000000000000000006 /* RewritePanelViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewritePanelViewModel.swift; sourceTree = "<group>"; };
+		000000000000000000000007 /* RewritePanelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewritePanelView.swift; sourceTree = "<group>"; };
+		000000000000000000000008 /* SelectionBubbleController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectionBubbleController.swift; sourceTree = "<group>"; };
+		000000000000000000000009 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		00000000000000000000000A /* PermissionGuidanceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionGuidanceView.swift; sourceTree = "<group>"; };
+		00000000000000000000000B /* PermissionMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionMonitor.swift; sourceTree = "<group>"; };
+		00000000000000000000000C /* Provider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Provider.swift; sourceTree = "<group>"; };
+		00000000000000000000000D /* OllamaProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OllamaProvider.swift; sourceTree = "<group>"; };
+		00000000000000000000000E /* SelectionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectionService.swift; sourceTree = "<group>"; };
+		00000000000000000000000F /* HotKeyManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotKeyManager.swift; sourceTree = "<group>"; };
+		000000000000000000000010 /* PanelCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanelCoordinator.swift; sourceTree = "<group>"; };
+		000000000000000000000011 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		000000000000000000000012 /* NemrionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NemrionTests.swift; sourceTree = "<group>"; };
+		000000000000000000000013 /* Nemrion.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; path = Nemrion.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		000000000000000000000014 /* NemrionTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; path = NemrionTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		000000000000000000000511 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		000000000000000000000512 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		000000000000000000000600 = {
+			isa = PBXGroup;
+			children = (
+				000000000000000000000601 /* Docs */,
+				000000000000000000000602 /* Nemrion */,
+				000000000000000000000603 /* NemrionTests */,
+				000000000000000000000604 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		000000000000000000000601 /* Docs */ = {
+			isa = PBXGroup;
+			path = Docs;
+			sourceTree = "<group>";
+		};
+		000000000000000000000602 /* Nemrion */ = {
+			isa = PBXGroup;
+			children = (
+				000000000000000000000610 /* App */,
+				000000000000000000000611 /* Core */,
+				000000000000000000000612 /* Design */,
+				000000000000000000000613 /* Features */,
+				000000000000000000000614 /* Services */,
+				000000000000000000000615 /* Resources */,
+			);
+			path = Nemrion;
+			sourceTree = "<group>";
+		};
+		000000000000000000000603 /* NemrionTests */ = {
+			isa = PBXGroup;
+			children = (
+				000000000000000000000012 /* NemrionTests.swift */,
+			);
+			path = NemrionTests;
+			sourceTree = "<group>";
+		};
+		000000000000000000000604 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				000000000000000000000013 /* Nemrion.app */,
+				000000000000000000000014 /* NemrionTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		000000000000000000000610 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				000000000000000000000001 /* NemrionApp.swift */,
+				000000000000000000000002 /* AppContainer.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		000000000000000000000611 /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				000000000000000000000003 /* Models.swift */,
+			);
+			path = Core;
+			sourceTree = "<group>";
+		};
+		000000000000000000000612 /* Design */ = {
+			isa = PBXGroup;
+			children = (
+				000000000000000000000004 /* DesignSystem.swift */,
+			);
+			path = Design;
+			sourceTree = "<group>";
+		};
+		000000000000000000000613 /* Features */ = {
+			isa = PBXGroup;
+			children = (
+				000000000000000000000620 /* Bubble */,
+				000000000000000000000621 /* MenuBar */,
+				000000000000000000000622 /* Onboarding */,
+				000000000000000000000623 /* Panel */,
+				000000000000000000000624 /* Settings */,
+			);
+			path = Features;
+			sourceTree = "<group>";
+		};
+		000000000000000000000614 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				000000000000000000000630 /* Permissions */,
+				000000000000000000000631 /* Providers */,
+				000000000000000000000632 /* Selection */,
+				000000000000000000000633 /* System */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		000000000000000000000615 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				000000000000000000000011 /* Info.plist */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		000000000000000000000620 /* Bubble */ = {
+			isa = PBXGroup;
+			children = (
+				000000000000000000000008 /* SelectionBubbleController.swift */,
+			);
+			path = Bubble;
+			sourceTree = "<group>";
+		};
+		000000000000000000000621 /* MenuBar */ = {
+			isa = PBXGroup;
+			children = (
+				000000000000000000000005 /* MenuBarView.swift */,
+			);
+			path = MenuBar;
+			sourceTree = "<group>";
+		};
+		000000000000000000000622 /* Onboarding */ = {
+			isa = PBXGroup;
+			children = (
+				00000000000000000000000A /* PermissionGuidanceView.swift */,
+			);
+			path = Onboarding;
+			sourceTree = "<group>";
+		};
+		000000000000000000000623 /* Panel */ = {
+			isa = PBXGroup;
+			children = (
+				000000000000000000000006 /* RewritePanelViewModel.swift */,
+				000000000000000000000007 /* RewritePanelView.swift */,
+			);
+			path = Panel;
+			sourceTree = "<group>";
+		};
+		000000000000000000000624 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				000000000000000000000009 /* SettingsView.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+		000000000000000000000630 /* Permissions */ = {
+			isa = PBXGroup;
+			children = (
+				00000000000000000000000B /* PermissionMonitor.swift */,
+			);
+			path = Permissions;
+			sourceTree = "<group>";
+		};
+		000000000000000000000631 /* Providers */ = {
+			isa = PBXGroup;
+			children = (
+				00000000000000000000000C /* Provider.swift */,
+				00000000000000000000000D /* OllamaProvider.swift */,
+			);
+			path = Providers;
+			sourceTree = "<group>";
+		};
+		000000000000000000000632 /* Selection */ = {
+			isa = PBXGroup;
+			children = (
+				00000000000000000000000E /* SelectionService.swift */,
+			);
+			path = Selection;
+			sourceTree = "<group>";
+		};
+		000000000000000000000633 /* System */ = {
+			isa = PBXGroup;
+			children = (
+				00000000000000000000000F /* HotKeyManager.swift */,
+				000000000000000000000010 /* PanelCoordinator.swift */,
+			);
+			path = System;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		000000000000000000000401 /* Nemrion */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 000000000000000000000701 /* Build configuration list for PBXNativeTarget "Nemrion" */;
+			buildPhases = (
+				000000000000000000000521 /* Sources */,
+				000000000000000000000511 /* Frameworks */,
+				000000000000000000000503 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Nemrion;
+			productName = Nemrion;
+			productReference = 000000000000000000000013 /* Nemrion.app */;
+			productType = "com.apple.product-type.application";
+		};
+		000000000000000000000402 /* NemrionTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 000000000000000000000702 /* Build configuration list for PBXNativeTarget "NemrionTests" */;
+			buildPhases = (
+				000000000000000000000522 /* Sources */,
+				000000000000000000000512 /* Frameworks */,
+				000000000000000000000505 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				000000000000000000000203 /* PBXTargetDependency */,
+			);
+			name = NemrionTests;
+			productName = NemrionTests;
+			productReference = 000000000000000000000014 /* NemrionTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		000000000000000000000300 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2630;
+				LastUpgradeCheck = 2630;
+				TargetAttributes = {
+					000000000000000000000401 = {
+						CreatedOnToolsVersion = 26.3;
+					};
+					000000000000000000000402 = {
+						CreatedOnToolsVersion = 26.3;
+						TestTargetID = 000000000000000000000401;
+					};
+				};
+			};
+			buildConfigurationList = 000000000000000000000700 /* Build configuration list for PBXProject "Nemrion" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 000000000000000000000600;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 000000000000000000000604 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				000000000000000000000401 /* Nemrion */,
+				000000000000000000000402 /* NemrionTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		000000000000000000000503 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		000000000000000000000505 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		000000000000000000000521 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				000000000000000000000101 /* NemrionApp.swift in Sources */,
+				000000000000000000000102 /* AppContainer.swift in Sources */,
+				000000000000000000000103 /* Models.swift in Sources */,
+				000000000000000000000104 /* DesignSystem.swift in Sources */,
+				000000000000000000000105 /* MenuBarView.swift in Sources */,
+				000000000000000000000106 /* RewritePanelViewModel.swift in Sources */,
+				000000000000000000000107 /* RewritePanelView.swift in Sources */,
+				000000000000000000000108 /* SelectionBubbleController.swift in Sources */,
+				000000000000000000000109 /* SettingsView.swift in Sources */,
+				00000000000000000000010A /* PermissionGuidanceView.swift in Sources */,
+				00000000000000000000010B /* PermissionMonitor.swift in Sources */,
+				00000000000000000000010C /* Provider.swift in Sources */,
+				00000000000000000000010D /* OllamaProvider.swift in Sources */,
+				00000000000000000000010E /* SelectionService.swift in Sources */,
+				00000000000000000000010F /* HotKeyManager.swift in Sources */,
+				000000000000000000000110 /* PanelCoordinator.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		000000000000000000000522 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				000000000000000000000112 /* NemrionTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		000000000000000000000203 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 000000000000000000000401 /* Nemrion */;
+			targetProxy = 000000000000000000000201 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		000000000000000000000800 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGNING_ALLOWED = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				DEFINES_MODULE = YES;
+				ENABLE_HARDENED_RUNTIME = NO;
+				ENABLE_APP_INTENTS_METADATA_GENERATION = NO;
+				ENABLE_TESTABILITY = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.nemrion.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 6.0;
+				INFOPLIST_FILE = Nemrion/Resources/Info.plist;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+			};
+			name = Debug;
+		};
+		000000000000000000000801 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGNING_ALLOWED = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				DEFINES_MODULE = YES;
+				ENABLE_HARDENED_RUNTIME = NO;
+				ENABLE_APP_INTENTS_METADATA_GENERATION = NO;
+				GENERATE_INFOPLIST_FILE = NO;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.nemrion.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 6.0;
+				INFOPLIST_FILE = Nemrion/Resources/Info.plist;
+			};
+			name = Release;
+		};
+		000000000000000000000802 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGNING_ALLOWED = NO;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.nemrion.app.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_VERSION = 6.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Nemrion.app/Contents/MacOS/Nemrion";
+			};
+			name = Debug;
+		};
+		000000000000000000000803 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGNING_ALLOWED = NO;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.nemrion.app.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_VERSION = 6.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Nemrion.app/Contents/MacOS/Nemrion";
+			};
+			name = Release;
+		};
+		000000000000000000000804 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				SDKROOT = macosx;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		000000000000000000000805 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				SDKROOT = macosx;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		000000000000000000000700 /* Build configuration list for PBXProject "Nemrion" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				000000000000000000000804 /* Debug */,
+				000000000000000000000805 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		000000000000000000000701 /* Build configuration list for PBXNativeTarget "Nemrion" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				000000000000000000000800 /* Debug */,
+				000000000000000000000801 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		000000000000000000000702 /* Build configuration list for PBXNativeTarget "NemrionTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				000000000000000000000802 /* Debug */,
+				000000000000000000000803 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 000000000000000000000300 /* Project object */;
+}

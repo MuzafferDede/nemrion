@@ -1,0 +1,16 @@
+/Users/x/Code/Nemrion/Nemrion/App/NemrionApp.swift
+/Users/x/Code/Nemrion/Nemrion/App/AppContainer.swift
+/Users/x/Code/Nemrion/Nemrion/Core/Models.swift
+/Users/x/Code/Nemrion/Nemrion/Design/DesignSystem.swift
+/Users/x/Code/Nemrion/Nemrion/Features/MenuBar/MenuBarView.swift
+/Users/x/Code/Nemrion/Nemrion/Features/Panel/RewritePanelViewModel.swift
+/Users/x/Code/Nemrion/Nemrion/Features/Panel/RewritePanelView.swift
+/Users/x/Code/Nemrion/Nemrion/Features/Bubble/SelectionBubbleController.swift
+/Users/x/Code/Nemrion/Nemrion/Features/Settings/SettingsView.swift
+/Users/x/Code/Nemrion/Nemrion/Features/Onboarding/PermissionGuidanceView.swift
+/Users/x/Code/Nemrion/Nemrion/Services/Permissions/PermissionMonitor.swift
+/Users/x/Code/Nemrion/Nemrion/Services/Providers/Provider.swift
+/Users/x/Code/Nemrion/Nemrion/Services/Providers/OllamaProvider.swift
+/Users/x/Code/Nemrion/Nemrion/Services/Selection/SelectionService.swift
+/Users/x/Code/Nemrion/Nemrion/Services/System/HotKeyManager.swift
+/Users/x/Code/Nemrion/Nemrion/Services/System/PanelCoordinator.swift

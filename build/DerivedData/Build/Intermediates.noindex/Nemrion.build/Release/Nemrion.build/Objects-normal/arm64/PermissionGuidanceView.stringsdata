@@ -1,0 +1,48 @@
+{
+  "source": "/Users/x/Code/Nemrion/Nemrion/Features/Onboarding/PermissionGuidanceView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Nemrion needs Accessibility access to read selected text, show the contextual bubble accurately, and replace the rewritten text back into the source app.",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 29
+        }
+      },
+      {
+        "comment": "",
+        "key": "Accessibility access granted",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 24
+        }
+      },
+      {
+        "comment": "",
+        "key": "Accessibility access required",
+        "location": {
+          "startingColumn": 67,
+          "startingLine": 24
+        }
+      },
+      {
+        "comment": "",
+        "key": "Request Access",
+        "location": {
+          "startingColumn": 27,
+          "startingLine": 37
+        }
+      },
+      {
+        "comment": "",
+        "key": "Open System Settings",
+        "location": {
+          "startingColumn": 27,
+          "startingLine": 44
+        }
+      }
+    ]
+  },
+  "version": 1
+}
