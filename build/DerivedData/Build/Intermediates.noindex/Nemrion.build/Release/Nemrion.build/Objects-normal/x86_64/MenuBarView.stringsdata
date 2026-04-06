@@ -7,7 +7,7 @@
         "key": "Nemrion",
         "location": {
           "startingColumn": 22,
-          "startingLine": 40
+          "startingLine": 26
         }
       },
       {
@@ -15,7 +15,7 @@
         "key": "Polish selected text anywhere on macOS",
         "location": {
           "startingColumn": 22,
-          "startingLine": 44
+          "startingLine": 30
         }
       },
       {
@@ -23,7 +23,7 @@
         "key": "Quit Nemrion",
         "location": {
           "startingColumn": 23,
-          "startingLine": 63
+          "startingLine": 51
         }
       }
     ]

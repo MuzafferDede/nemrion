@@ -7,55 +7,47 @@
         "key": "Polish",
         "location": {
           "startingColumn": 26,
-          "startingLine": 30
+          "startingLine": 34
         }
       },
       {
         "comment": "",
-        "key": "Optional",
-        "location": {
-          "startingColumn": 22,
-          "startingLine": 78
-        }
-      },
-      {
-        "comment": "",
-        "key": "Additional prompt",
+        "key": "Close",
         "location": {
           "startingColumn": 23,
-          "startingLine": 72
+          "startingLine": 74
         }
       },
       {
         "comment": "",
-        "key": "Make it friendlier, shorter, clearer, or more direct...",
+        "key": "Send prompt",
+        "location": {
+          "startingColumn": 19,
+          "startingLine": 110
+        }
+      },
+      {
+        "comment": "",
+        "key": "Tell Nemrion how to refine this result…",
         "location": {
           "startingColumn": 27,
-          "startingLine": 84
-        }
-      },
-      {
-        "comment": "",
-        "key": "Submit additional prompt",
-        "location": {
-          "startingColumn": 23,
-          "startingLine": 110
+          "startingLine": 87
         }
       },
       {
         "comment": "",
         "key": "Result",
         "location": {
-          "startingColumn": 23,
-          "startingLine": 125
+          "startingColumn": 19,
+          "startingLine": 157
         }
       },
       {
         "comment": "",
         "key": "Streaming",
         "location": {
-          "startingColumn": 30,
-          "startingLine": 136
+          "startingColumn": 26,
+          "startingLine": 168
         }
       },
       {
@@ -63,7 +55,7 @@
         "key": "Grant Access",
         "location": {
           "startingColumn": 27,
-          "startingLine": 176
+          "startingLine": 182
         }
       },
       {
@@ -71,7 +63,7 @@
         "key": "Open Settings",
         "location": {
           "startingColumn": 27,
-          "startingLine": 185
+          "startingLine": 191
         }
       },
       {
@@ -79,7 +71,7 @@
         "key": "Applying...",
         "location": {
           "startingColumn": 46,
-          "startingLine": 201
+          "startingLine": 207
         }
       },
       {
@@ -87,7 +79,7 @@
         "key": "Apply",
         "location": {
           "startingColumn": 62,
-          "startingLine": 201
+          "startingLine": 207
         }
       }
     ]

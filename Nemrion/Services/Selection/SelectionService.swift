@@ -5,7 +5,7 @@ import Foundation
 
 actor SelectionService {
     private let pasteboard = NSPasteboard.general
-    private let browserBundleIdentifiers: Set<String> = [
+    private let selectionProbeBundleIdentifiers: Set<String> = [
         "com.apple.Safari",
         "com.google.Chrome",
         "com.google.Chrome.canary",
@@ -13,7 +13,9 @@ actor SelectionService {
         "company.thebrowser.Browser",
         "com.microsoft.edgemac",
         "org.mozilla.firefox",
-        "company.thebrowser.Browser.beta"
+        "company.thebrowser.Browser.beta",
+        "com.tinyspeck.slackmacgap",
+        "com.tinyspeck.slackmacgap.helper"
     ]
 
     struct BubbleAnchor: Sendable {
@@ -59,15 +61,15 @@ actor SelectionService {
         return BubbleAnchor(rect: fallbackRect, isPrecise: false)
     }
 
-    func frontmostAppIsBrowser() -> Bool {
+    func frontmostAppSupportsSelectionProbe() -> Bool {
         guard let bundleIdentifier = NSWorkspace.shared.frontmostApplication?.bundleIdentifier else {
             return false
         }
-        return browserBundleIdentifiers.contains(bundleIdentifier)
+        return selectionProbeBundleIdentifiers.contains(bundleIdentifier)
     }
 
-    func browserBubbleAnchor(mouseLocation: CGPoint) async throws -> BubbleAnchor? {
-        guard frontmostAppIsBrowser() else { return nil }
+    func probedBubbleAnchor(mouseLocation: CGPoint) async throws -> BubbleAnchor? {
+        guard frontmostAppSupportsSelectionProbe() else { return nil }
 
         let frontmostApp = NSWorkspace.shared.frontmostApplication
         if let selection = try await captureUsingClipboard(frontmostApp: frontmostApp) {

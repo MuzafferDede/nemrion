@@ -82,7 +82,7 @@ final class SelectionBubbleController {
             if let fallbackAnchor,
                let fallbackAnchorExpiry,
                fallbackAnchorExpiry > Date(),
-               await selectionService.frontmostAppIsBrowser() {
+               await selectionService.frontmostAppSupportsSelectionProbe() {
                 show(at: fallbackAnchor)
                 return
             }
@@ -109,11 +109,11 @@ final class SelectionBubbleController {
     private func probeBrowserSelection() async {
         guard NSApp.isActive == false else { return }
         guard let selectionService else { return }
-        guard await selectionService.frontmostAppIsBrowser() else { return }
+        guard await selectionService.frontmostAppSupportsSelectionProbe() else { return }
 
         try? await Task.sleep(for: .milliseconds(120))
 
-        guard let anchor = try? await selectionService.browserBubbleAnchor(mouseLocation: NSEvent.mouseLocation) else {
+        guard let anchor = try? await selectionService.probedBubbleAnchor(mouseLocation: NSEvent.mouseLocation) else {
             clearFallbackAnchor()
             lockedImpreciseAnchor = nil
             return

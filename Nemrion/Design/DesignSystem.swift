@@ -39,6 +39,15 @@ enum NemrionScale {
     static let textLg: CGFloat = textMd * ratio
 }
 
+enum NemrionSurfaceKind {
+    case shell
+    case section
+    case tile
+    case tileStrong
+    case interactive
+    case inset
+}
+
 struct NemrionBackground: View {
     var body: some View {
         ZStack {
@@ -142,6 +151,55 @@ struct SectionCardModifier: ViewModifier {
     }
 }
 
+struct NemrionSurfaceModifier: ViewModifier {
+    let kind: NemrionSurfaceKind
+    var radius: CGFloat = NemrionScale.radius
+
+    func body(content: Content) -> some View {
+        content
+            .background(background)
+            .overlay {
+                RoundedRectangle(cornerRadius: radius, style: .continuous)
+                    .stroke(border, lineWidth: 1)
+            }
+            .clipShape(RoundedRectangle(cornerRadius: radius, style: .continuous))
+    }
+
+    @ViewBuilder
+    private var background: some View {
+        switch kind {
+        case .shell:
+            LinearGradient(
+                colors: [
+                    Color(red: 0.09, green: 0.10, blue: 0.11),
+                    Color(red: 0.12, green: 0.13, blue: 0.15)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        case .section:
+            Color(red: 0.13, green: 0.14, blue: 0.16).opacity(0.94)
+        case .tile:
+            NemrionTheme.surface
+        case .tileStrong:
+            NemrionTheme.surfaceStrong
+        case .interactive:
+            NemrionTheme.surfaceInteractive
+        case .inset:
+            Color.black.opacity(0.12)
+        }
+    }
+
+    private var border: Color {
+        switch kind {
+        case .shell, .section, .tile, .tileStrong, .inset:
+            return NemrionTheme.border
+        case .interactive:
+            return NemrionTheme.borderStrong
+        }
+    }
+}
+
 extension View {
     func glassCard(radius: CGFloat = NemrionScale.radius) -> some View {
         modifier(GlassCardModifier(radius: radius))
@@ -149,6 +207,10 @@ extension View {
 
     func sectionCard(radius: CGFloat = NemrionScale.radius, strong: Bool = false) -> some View {
         modifier(SectionCardModifier(radius: radius, strong: strong))
+    }
+
+    func nemrionSurface(_ kind: NemrionSurfaceKind, radius: CGFloat = NemrionScale.radius) -> some View {
+        modifier(NemrionSurfaceModifier(kind: kind, radius: radius))
     }
 }
 
@@ -261,6 +323,32 @@ struct EyebrowLabel: View {
             .font(.system(size: NemrionScale.textXs, weight: .bold, design: .rounded))
             .tracking(1.3)
             .foregroundStyle(NemrionTheme.textTertiary)
+    }
+}
+
+struct SurfaceIconBadge: View {
+    let symbol: String
+    var tint: Color
+
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: NemrionScale.radius, style: .continuous)
+                .fill(tint.opacity(0.14))
+
+            if symbol == "nemrion.mark" {
+                NemrionMark(
+                    primary: tint,
+                    secondary: tint.opacity(0.66),
+                    lineWidth: 0.11
+                )
+                .padding(6)
+            } else {
+                Image(systemName: symbol)
+                    .font(.system(size: NemrionScale.textSm, weight: .bold))
+                    .foregroundStyle(tint)
+            }
+        }
+        .frame(width: 32, height: 32)
     }
 }
 

@@ -5,22 +5,26 @@ struct RewritePanelView: View {
     @EnvironmentObject private var app: AppContainer
 
     var body: some View {
-        GeometryReader { proxy in
-            ZStack {
-                NemrionBackground()
+        ZStack {
+            NemrionBackground()
 
-                VStack(spacing: NemrionScale.space3) {
-                    topBar
-                    resultSurface
-                        .frame(maxHeight: .infinity)
-                    promptComposer
-                    footer
-                }
-                .padding(NemrionScale.space4)
+            VStack(spacing: NemrionScale.space3) {
+                topBar
+                bodyContainer
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
-            .frame(width: proxy.size.width, height: proxy.size.height)
+            .padding(NemrionScale.space4)
         }
-        .frame(minWidth: 680, idealWidth: 760, minHeight: 500, idealHeight: 560)
+        .frame(minWidth: 680, idealWidth: 760, minHeight: 500)
+    }
+
+    private var bodyContainer: some View {
+        VStack(spacing: NemrionScale.space3) {
+            resultSurface
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+            promptComposer
+        }
     }
 
     private var topBar: some View {
@@ -43,131 +47,133 @@ struct RewritePanelView: View {
 
             Spacer()
 
-            VStack(alignment: .trailing, spacing: 6) {
-                Text(resultTrailing)
-                    .font(.system(size: NemrionScale.textXs, weight: .bold, design: .rounded))
-                    .tracking(1)
-                    .foregroundStyle(NemrionTheme.textPrimary)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 7)
-                    .background(NemrionTheme.surfaceStrong)
-                    .clipShape(RoundedRectangle(cornerRadius: NemrionScale.radius, style: .continuous))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: NemrionScale.radius, style: .continuous)
-                            .stroke(NemrionTheme.border, lineWidth: 1)
-                    )
+            HStack(alignment: .top, spacing: NemrionScale.space2) {
+                VStack(alignment: .trailing, spacing: 6) {
+                    Text(resultTrailing)
+                        .font(.system(size: NemrionScale.textXs, weight: .bold, design: .rounded))
+                        .tracking(1)
+                        .foregroundStyle(NemrionTheme.textPrimary)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 7)
+                        .nemrionSurface(.tileStrong)
 
-                Text(sourceLabel)
-                    .font(.system(size: NemrionScale.textSm, weight: .medium))
-                    .foregroundStyle(NemrionTheme.textTertiary)
-                    .lineLimit(1)
+                    Text(sourceLabel)
+                        .font(.system(size: NemrionScale.textSm, weight: .medium))
+                        .foregroundStyle(NemrionTheme.textTertiary)
+                        .lineLimit(1)
+                }
+
+                Button {
+                    app.dismissPanel()
+                } label: {
+                    Image(systemName: "xmark")
+                        .font(.system(size: NemrionScale.textXs, weight: .bold))
+                        .frame(width: 30, height: 30)
+                }
+                .buttonStyle(PanelButtonStyle(variant: .secondary, size: .compact))
+                .help("Close")
             }
         }
         .padding(.horizontal, 2)
     }
 
     private var promptComposer: some View {
-        VStack(alignment: .leading, spacing: NemrionScale.space2) {
-            HStack {
-                Label("Additional prompt", systemImage: "slider.horizontal.3")
+        HStack(alignment: .center, spacing: NemrionScale.space2) {
+            HStack(spacing: NemrionScale.space2) {
+                Image(systemName: "lightbulb")
                     .font(.system(size: NemrionScale.textSm, weight: .semibold))
-                    .foregroundStyle(NemrionTheme.textPrimary)
-
-                Spacer()
-
-                Text("Optional")
-                    .font(.system(size: NemrionScale.textXs, weight: .semibold))
                     .foregroundStyle(NemrionTheme.textTertiary)
-            }
 
-            HStack(alignment: .bottom, spacing: NemrionScale.space2) {
-                TextField("Make it friendlier, shorter, clearer, or more direct...", text: $viewModel.instruction)
+                TextField("Tell Nemrion how to refine this result…", text: $viewModel.instruction)
                     .textFieldStyle(.plain)
                     .font(.system(size: NemrionScale.textSm, weight: .medium))
                     .foregroundStyle(NemrionTheme.textPrimary)
-                    .padding(.horizontal, 14)
-                    .padding(.vertical, 6)
-                    .frame(height: 40)
-                    .background(Color.black.opacity(0.18))
-                    .clipShape(RoundedRectangle(cornerRadius: NemrionScale.radius, style: .continuous))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: NemrionScale.radius, style: .continuous)
-                            .stroke(NemrionTheme.border, lineWidth: 1)
-                    )
+                    .frame(maxWidth: .infinity, alignment: .leading)
                     .onSubmit {
                         Task { await viewModel.submitInstruction() }
                     }
-
-                Button {
-                    Task { await viewModel.submitInstruction() }
-                } label: {
-                    Image(systemName: "arrow.up")
-                        .font(.system(size: NemrionScale.textSm, weight: .bold))
-                        .frame(width: 40, height: 40)
-                }
-                .buttonStyle(PanelButtonStyle(variant: .secondary, size: .compact))
-                .disabled(viewModel.sourceText.isEmpty || viewModel.instruction.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || app.dependencyStatus != .ready)
-                .help("Submit additional prompt")
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
+
+            Button {
+                Task { await viewModel.submitInstruction() }
+            } label: {
+                Image(systemName: "arrow.up")
+                    .font(.system(size: NemrionScale.textSm, weight: .bold))
+                    .foregroundStyle(.white)
+                    .frame(width: 36, height: 36)
+                    .nemrionSurface(.interactive)
+            }
+            .buttonStyle(.plain)
+            .disabled(viewModel.sourceText.isEmpty || viewModel.instruction.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || app.dependencyStatus != .ready)
+            .opacity(viewModel.sourceText.isEmpty || viewModel.instruction.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || app.dependencyStatus != .ready ? 0.5 : 1)
+            .help("Send prompt")
         }
-        .padding(NemrionScale.space3)
-        .background(NemrionTheme.surface)
-        .clipShape(RoundedRectangle(cornerRadius: NemrionScale.radius, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: NemrionScale.radius, style: .continuous)
-                .stroke(NemrionTheme.border, lineWidth: 1)
-        )
+        .padding(NemrionScale.space2)
+        .frame(minHeight: 52)
+        .nemrionSurface(.tileStrong)
     }
 
     private var resultSurface: some View {
         VStack(alignment: .leading, spacing: NemrionScale.space2) {
-            HStack {
-                Label("Result", systemImage: "text.quote")
-                    .font(.system(size: NemrionScale.textMd, weight: .semibold))
-                    .foregroundStyle(NemrionTheme.textPrimary)
+            resultHeader
 
-                Spacer()
-
-                if viewModel.phase == .generating {
-                    HStack(spacing: 8) {
-                        ProgressView()
-                            .controlSize(.small)
-                            .tint(NemrionTheme.accent)
-                        Text("Streaming")
-                            .font(.system(size: NemrionScale.textSm, weight: .medium))
-                            .foregroundStyle(NemrionTheme.textSecondary)
+            VStack(spacing: 0) {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 12) {
+                        if viewModel.outputText.isEmpty, viewModel.phase == .generating {
+                            streamingPlaceholder
+                        } else {
+                            Text(outputBody)
+                                .font(.system(size: NemrionScale.textMd, weight: .medium))
+                                .lineSpacing(5)
+                                .foregroundStyle(outputColor)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .textSelection(.enabled)
+                        }
                     }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(NemrionScale.space3)
                 }
-            }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .nemrionSurface(.inset)
+                .padding(NemrionScale.space2)
 
-            ScrollView {
-                VStack(alignment: .leading, spacing: 12) {
-                    if viewModel.outputText.isEmpty, viewModel.phase == .generating {
-                        streamingPlaceholder
-                    } else {
-                        Text(outputBody)
-                            .font(.system(size: NemrionScale.textMd, weight: .medium))
-                            .lineSpacing(4)
-                            .foregroundStyle(outputColor)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .textSelection(.enabled)
-                    }
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
+                Divider()
+                    .overlay(NemrionTheme.border)
+
+                resultActions
+                    .padding(NemrionScale.space3)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .nemrionSurface(.tile)
         }
         .padding(NemrionScale.space3)
-        .background(NemrionTheme.backgroundRaised.opacity(0.88))
-        .clipShape(RoundedRectangle(cornerRadius: NemrionScale.radius, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: NemrionScale.radius, style: .continuous)
-                .stroke(NemrionTheme.borderStrong, lineWidth: 1)
-        )
+        .nemrionSurface(.section)
         .frame(maxWidth: .infinity, minHeight: 220)
     }
 
-    private var footer: some View {
+    private var resultHeader: some View {
+        HStack {
+            Label("Result", systemImage: "text.quote")
+                .font(.system(size: NemrionScale.textMd, weight: .semibold))
+                .foregroundStyle(NemrionTheme.textPrimary)
+
+            Spacer()
+
+            if viewModel.phase == .generating {
+                HStack(spacing: 8) {
+                    ProgressView()
+                        .controlSize(.small)
+                        .tint(NemrionTheme.accent)
+                    Text("Streaming")
+                        .font(.system(size: NemrionScale.textSm, weight: .medium))
+                        .foregroundStyle(NemrionTheme.textSecondary)
+                }
+            }
+        }
+    }
+
+    private var resultActions: some View {
         HStack(spacing: NemrionScale.space2) {
             if app.permissionMonitor.isTrusted == false {
                 Button {
@@ -180,7 +186,7 @@ struct RewritePanelView: View {
 
             if app.dependencyStatus != .ready {
                 Button {
-                    NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
+                    app.openSettingsWindow()
                 } label: {
                     Label("Open Settings", systemImage: "gearshape")
                 }
@@ -198,12 +204,11 @@ struct RewritePanelView: View {
                     app.dismissPanel()
                 }
             } label: {
-                Label(viewModel.isApplying ? "Applying..." : "Apply", systemImage: "arrow.down.left.and.arrow.up.right")
+                Label(viewModel.isApplying ? "Applying..." : "Apply", systemImage: "checkmark")
             }
             .buttonStyle(PanelButtonStyle(variant: .primary))
             .disabled(viewModel.outputText.isEmpty || viewModel.isApplying)
         }
-        .padding(.top, 2)
     }
 
     private var statusLine: String {

@@ -14,21 +14,7 @@ struct MenuBarView: View {
             actionsRow
         }
         .padding(NemrionScale.space3)
-        .background(
-            LinearGradient(
-                colors: [
-                    Color(red: 0.09, green: 0.10, blue: 0.11),
-                    Color(red: 0.12, green: 0.13, blue: 0.15)
-                ],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-        )
-        .clipShape(RoundedRectangle(cornerRadius: NemrionScale.radius, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: NemrionScale.radius, style: .continuous)
-                .stroke(NemrionTheme.border, lineWidth: 1)
-        )
+        .nemrionSurface(.shell)
         .frame(width: 320)
     }
 
@@ -49,7 +35,9 @@ struct MenuBarView: View {
             Spacer()
 
             HStack(spacing: 8) {
-                SettingsLink {
+                Button {
+                    app.openSettingsWindow()
+                } label: {
                     toolbarIcon(symbol: "gearshape")
                 }
                 .buttonStyle(.plain)
@@ -192,50 +180,22 @@ struct MenuBarView: View {
         }
         .padding(12)
         .frame(maxWidth: .infinity, minHeight: 60, alignment: .leading)
-        .background(tileBackground(isPrimary: isPrimary, emphasized: emphasized))
-        .clipShape(RoundedRectangle(cornerRadius: NemrionScale.radius, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: NemrionScale.radius, style: .continuous)
-                .stroke(tileBorder(isPrimary: isPrimary, emphasized: emphasized), lineWidth: 1)
-        )
+        .nemrionSurface(tileKind(isPrimary: isPrimary, emphasized: emphasized))
     }
 
     private func actionIcon(symbol: String, strong: Bool, tint: Color? = nil) -> some View {
-        Group {
-            if symbol == "nemrion.mark" {
-                NemrionMark(
-                    primary: strong ? Color.white : NemrionTheme.textPrimary,
-                    secondary: strong ? Color.white.opacity(0.62) : NemrionTheme.textSecondary,
-                    lineWidth: 0.11
-                )
-                .padding(5)
-            } else {
-                Image(systemName: symbol)
-                    .font(.system(size: NemrionScale.textSm, weight: .bold))
-                    .foregroundStyle(strong ? Color.white : (tint ?? NemrionTheme.textPrimary))
-            }
-        }
-        .frame(width: 28, height: 28)
-        .background(
-            strong
-            ? Color.white.opacity(0.10)
-            : (tint ?? NemrionTheme.textPrimary).opacity(0.10)
+        SurfaceIconBadge(
+            symbol: symbol,
+            tint: strong ? Color.white : (tint ?? NemrionTheme.textPrimary)
         )
-        .clipShape(RoundedRectangle(cornerRadius: NemrionScale.radius, style: .continuous))
+        .frame(width: 28, height: 28)
     }
 
-    private func tileBackground(isPrimary: Bool, emphasized: Bool) -> Color {
-        if isPrimary {
-            return NemrionTheme.accent
+    private func tileKind(isPrimary: Bool, emphasized: Bool) -> NemrionSurfaceKind {
+        if isPrimary || emphasized {
+            return .interactive
         }
-        return emphasized ? NemrionTheme.surfaceInteractive : Color.white.opacity(0.04)
-    }
-
-    private func tileBorder(isPrimary: Bool, emphasized: Bool) -> Color {
-        if isPrimary {
-            return Color.white.opacity(0.16)
-        }
-        return emphasized ? NemrionTheme.borderStrong : NemrionTheme.border
+        return .tile
     }
 
     private func toolbarIcon(symbol: String) -> some View {
@@ -243,11 +203,6 @@ struct MenuBarView: View {
             .font(.system(size: NemrionScale.textSm, weight: .bold))
             .foregroundStyle(NemrionTheme.textPrimary)
             .frame(width: 30, height: 30)
-            .background(Color.white.opacity(0.05))
-            .clipShape(RoundedRectangle(cornerRadius: NemrionScale.radius, style: .continuous))
-            .overlay(
-                RoundedRectangle(cornerRadius: NemrionScale.radius, style: .continuous)
-                    .stroke(NemrionTheme.border, lineWidth: 1)
-            )
+            .nemrionSurface(.tile)
     }
 }

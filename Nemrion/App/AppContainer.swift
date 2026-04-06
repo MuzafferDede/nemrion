@@ -17,6 +17,7 @@ final class AppContainer: ObservableObject {
     private let hotKeyManager = HotKeyManager()
     private let panelViewModel: RewritePanelViewModel
     private let panelCoordinator: RewritePanelCoordinator
+    private let settingsCoordinator: SettingsWindowCoordinator
     private let bubbleController: SelectionBubbleController
     private var cancellables: Set<AnyCancellable> = []
     private var didRequestAccessibilityOnLaunch = false
@@ -24,6 +25,7 @@ final class AppContainer: ObservableObject {
     private init() {
         panelViewModel = RewritePanelViewModel()
         panelCoordinator = RewritePanelCoordinator(viewModel: panelViewModel)
+        settingsCoordinator = SettingsWindowCoordinator()
         bubbleController = SelectionBubbleController()
 
         panelViewModel.configure(
@@ -72,6 +74,7 @@ final class AppContainer: ObservableObject {
     }
 
     func triggerPolishFlow(source: TriggerSource) async {
+        await refreshProviderState()
         await panelViewModel.runPolishFlow(trigger: source) { [weak self] in
             self?.panelCoordinator.show()
         }
@@ -79,6 +82,16 @@ final class AppContainer: ObservableObject {
 
     func dismissPanel() {
         panelCoordinator.hide()
+        panelViewModel.clearSession()
+    }
+
+    func openSettingsWindow() {
+        Task { await refreshProviderState() }
+        settingsCoordinator.show()
+    }
+
+    func dismissSettingsWindow() {
+        settingsCoordinator.hide()
     }
 
     func refreshProviderState() async {

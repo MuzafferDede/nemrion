@@ -44,6 +44,8 @@ final class RewritePanelViewModel: ObservableObject {
             revealPanel()
         }
 
+        clearSession()
+
         guard dependencySource?() == .ready else {
             phase = .failure(dependencySource?().title ?? "Provider unavailable")
             revealIfNeeded()
@@ -115,6 +117,17 @@ final class RewritePanelViewModel: ObservableObject {
     func copyOutput() {
         pasteboard.clearContents()
         pasteboard.setString(outputText, forType: .string)
+    }
+
+    func clearSession() {
+        phase = .idle
+        sourceText = ""
+        outputText = ""
+        instruction = ""
+        lastError = ""
+        sourceAppName = "Current App"
+        isApplying = false
+        capturedSelection = nil
     }
 
     func applyOutput() async {

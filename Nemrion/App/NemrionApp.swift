@@ -10,16 +10,13 @@ struct NemrionApp: App {
         MenuBarExtra {
             MenuBarView()
                 .environmentObject(app)
+                .task {
+                    await app.refreshProviderState()
+                }
         } label: {
             Image(nsImage: Self.menuBarStatusImage)
         }
         .menuBarExtraStyle(.window)
-
-        Settings {
-            SettingsView()
-                .environmentObject(app)
-                .frame(width: 760, height: 620)
-        }
     }
 }
 
@@ -47,5 +44,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         app.start()
+    }
+
+    func applicationDidBecomeActive(_ notification: Notification) {
+        Task { @MainActor in
+            await app.refreshProviderState()
+        }
     }
 }

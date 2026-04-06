@@ -2,34 +2,41 @@ import SwiftUI
 
 struct SettingsView: View {
     @EnvironmentObject private var app: AppContainer
+    @State private var isModelPickerPresented = false
 
     var body: some View {
-        ZStack {
-            settingsBackground
-
-            ScrollView {
-                VStack(alignment: .leading, spacing: NemrionScale.space4) {
-                    header
-                    workspaceCard
-                    runtimeCard
-                }
-                .frame(maxWidth: .infinity, alignment: .topLeading)
-                .padding(.horizontal, NemrionScale.space4)
-                .padding(.top, 30)
-                .padding(.bottom, NemrionScale.space4)
-            }
+        VStack(alignment: .leading, spacing: NemrionScale.space4) {
+            header
+            workspaceCard
+            runtimeCard
         }
+        .padding(NemrionScale.space4)
+        .background(settingsBackground)
     }
 
     private var header: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text("Settings")
-                .font(.system(size: 24, weight: .bold))
-                .foregroundStyle(NemrionTheme.textPrimary)
+        HStack(alignment: .top, spacing: NemrionScale.space3) {
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Settings")
+                    .font(.system(size: 24, weight: .bold))
+                    .foregroundStyle(NemrionTheme.textPrimary)
 
-            Text("Keep runtime configuration small and get back to writing.")
-                .font(.system(size: NemrionScale.textSm, weight: .medium))
-                .foregroundStyle(NemrionTheme.textSecondary)
+                Text("Keep runtime configuration small and get back to writing.")
+                    .font(.system(size: NemrionScale.textSm, weight: .medium))
+                    .foregroundStyle(NemrionTheme.textSecondary)
+            }
+
+            Spacer()
+
+            Button {
+                app.dismissSettingsWindow()
+            } label: {
+                Image(systemName: "xmark")
+                    .font(.system(size: NemrionScale.textXs, weight: .bold))
+                    .frame(width: 30, height: 30)
+            }
+            .buttonStyle(PanelButtonStyle(variant: .secondary, size: .compact))
+            .help("Close")
         }
     }
 
@@ -39,25 +46,15 @@ struct SettingsView: View {
             subtitle: "Provider, model, and hotkey."
         ) {
             VStack(alignment: .leading, spacing: NemrionScale.space3) {
-                HStack(alignment: .top, spacing: NemrionScale.space3) {
-                    fieldGroup(title: "Provider") {
-                        VStack(spacing: NemrionScale.space2) {
-                            ForEach(ProviderKind.allCases) { provider in
-                                providerOption(provider)
-                            }
-                        }
+                VStack(spacing: NemrionScale.space2) {
+                    ForEach(ProviderKind.allCases) { provider in
+                        providerOption(provider)
                     }
-                    .frame(maxWidth: .infinity, alignment: .topLeading)
-
-                    fieldGroup(title: "Model") {
-                        modelSelector
-                    }
-                    .frame(maxWidth: .infinity, alignment: .topLeading)
                 }
 
-                fieldGroup(title: "Hotkey") {
-                    HotkeyValueField(hotKey: app.settings.hotKeyDisplay)
-                }
+                modelSelector
+
+                HotkeyValueField(hotKey: app.settings.hotKeyDisplay)
             }
         }
     }
@@ -86,183 +83,144 @@ struct SettingsView: View {
     }
 
     private var runtimeStatusRow: some View {
-        HStack(spacing: NemrionScale.space2) {
-            ZStack {
-                RoundedRectangle(cornerRadius: NemrionScale.radius, style: .continuous)
-                    .fill(runtimeColor.opacity(0.14))
-
-                Image(systemName: runtimeIcon)
-                    .font(.system(size: NemrionScale.textSm, weight: .bold))
-                    .foregroundStyle(runtimeColor)
-            }
-            .frame(width: 28, height: 28)
-
-            VStack(alignment: .leading, spacing: 3) {
-                Text("Ollama")
-                    .font(.system(size: NemrionScale.textSm, weight: .semibold))
-                    .foregroundStyle(NemrionTheme.textPrimary)
-
-                Text(app.dependencyStatus.title)
-                    .font(.system(size: NemrionScale.textSm, weight: .medium))
-                    .foregroundStyle(runtimeColor == NemrionTheme.warning ? NemrionTheme.warning : NemrionTheme.textSecondary)
-            }
-
-            Spacer()
-
-            if runtimeActionDisabled == false {
-                Image(systemName: "arrow.up.right")
-                    .font(.system(size: NemrionScale.textXs, weight: .bold))
-                    .foregroundStyle(NemrionTheme.textTertiary)
-            }
-        }
-        .padding(NemrionScale.space3)
-        .frame(maxWidth: .infinity, minHeight: 72, alignment: .leading)
-        .background(runtimeActionDisabled ? NemrionTheme.surfaceStrong : NemrionTheme.surfaceInteractive)
-        .clipShape(RoundedRectangle(cornerRadius: NemrionScale.radius, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: NemrionScale.radius, style: .continuous)
-                .stroke(runtimeActionDisabled ? NemrionTheme.border : NemrionTheme.borderStrong, lineWidth: 1)
+        statTile(
+            eyebrow: "Runtime",
+            title: "Ollama",
+            value: app.dependencyStatus.title,
+            icon: runtimeIcon,
+            tint: runtimeColor,
+            emphasized: runtimeActionDisabled == false,
+            trailingSymbol: runtimeActionDisabled ? nil : "arrow.up.right"
         )
-        .opacity(runtimeActionDisabled ? 1 : 0.98)
     }
 
     private var permissionStatus: some View {
         HStack(spacing: NemrionScale.space2) {
-            ZStack {
-                RoundedRectangle(cornerRadius: NemrionScale.radius, style: .continuous)
-                    .fill((app.permissionMonitor.isTrusted ? NemrionTheme.success : NemrionTheme.warning).opacity(0.14))
-
-                NemrionMark(
-                    primary: app.permissionMonitor.isTrusted ? NemrionTheme.success : NemrionTheme.warning,
-                    secondary: (app.permissionMonitor.isTrusted ? NemrionTheme.success : NemrionTheme.warning).opacity(0.66),
-                    lineWidth: 0.11
-                )
-                .padding(6)
-            }
-            .frame(width: 28, height: 28)
-
-            VStack(alignment: .leading, spacing: 3) {
-                Text("Accessibility")
-                    .font(.system(size: NemrionScale.textSm, weight: .semibold))
-                    .foregroundStyle(NemrionTheme.textPrimary)
-
-                Text(app.permissionMonitor.isTrusted ? "Granted" : "Waiting for access")
-                    .font(.system(size: NemrionScale.textSm, weight: .medium))
-                    .foregroundStyle(app.permissionMonitor.isTrusted ? NemrionTheme.success : NemrionTheme.warning)
-            }
-
-            Spacer()
+            statTile(
+                eyebrow: "Access",
+                title: "Accessibility",
+                value: app.permissionMonitor.isTrusted ? "Granted" : "Waiting for access",
+                icon: "nemrion.mark",
+                tint: app.permissionMonitor.isTrusted ? NemrionTheme.success : NemrionTheme.warning,
+                emphasized: false,
+                trailingSymbol: nil
+            )
 
             if app.permissionMonitor.isTrusted == false {
                 Button {
                     app.openAccessibilitySettings()
                 } label: {
                     Text("Open Settings")
+                        .frame(maxWidth: .infinity, minHeight: 56)
                 }
-                .buttonStyle(PanelButtonStyle(variant: .quiet))
+                .buttonStyle(PanelButtonStyle(variant: .secondary))
+                .frame(maxWidth: 148)
             }
         }
-        .padding(NemrionScale.space3)
-        .frame(maxWidth: .infinity, minHeight: 72, alignment: .leading)
-        .background(NemrionTheme.surfaceStrong)
-        .clipShape(RoundedRectangle(cornerRadius: NemrionScale.radius, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: NemrionScale.radius, style: .continuous)
-                .stroke(NemrionTheme.border, lineWidth: 1)
-        )
     }
 
     private func providerOption(_ provider: ProviderKind) -> some View {
         Button {
             app.settings.provider = provider
         } label: {
-            HStack(spacing: NemrionScale.space2) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(provider.displayName)
-                        .font(.system(size: NemrionScale.textMd, weight: .semibold))
-                        .foregroundStyle(NemrionTheme.textPrimary)
-
-                    Text("Local-first runtime using shared Ollama models.")
-                        .font(.system(size: NemrionScale.textSm, weight: .medium))
-                        .foregroundStyle(NemrionTheme.textSecondary)
-                }
-
-                Spacer()
-
-                Image(systemName: app.settings.provider == provider ? "checkmark.circle.fill" : "circle")
-                    .font(.system(size: NemrionScale.textMd, weight: .semibold))
-                    .foregroundStyle(app.settings.provider == provider ? NemrionTheme.accentBright : NemrionTheme.textTertiary)
-            }
-            .padding(NemrionScale.space3)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(app.settings.provider == provider ? NemrionTheme.surfaceInteractive : NemrionTheme.surface)
-            .clipShape(RoundedRectangle(cornerRadius: NemrionScale.radius, style: .continuous))
-            .overlay(
-                RoundedRectangle(cornerRadius: NemrionScale.radius, style: .continuous)
-                    .stroke(app.settings.provider == provider ? NemrionTheme.borderStrong : NemrionTheme.border, lineWidth: 1)
+            settingsTile(
+                eyebrow: "Provider",
+                title: provider.displayName,
+                detail: "Local-first runtime using shared Ollama models.",
+                icon: "shippingbox.fill",
+                tint: NemrionTheme.accentBright,
+                selected: app.settings.provider == provider
             )
         }
         .buttonStyle(.plain)
     }
 
     private var modelSelector: some View {
-        Menu {
-            if app.availableModels.isEmpty {
-                Text("No models found")
-            } else {
-                ForEach(app.availableModels) { model in
-                    Button(model.title) {
-                        app.settings.modelName = model.id
-                    }
-                }
-            }
+        Button {
+            guard app.availableModels.isEmpty == false else { return }
+            isModelPickerPresented.toggle()
         } label: {
-            HStack(spacing: NemrionScale.space2) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(selectedModelTitle)
-                        .font(.system(size: NemrionScale.textMd, weight: .semibold))
-                        .foregroundStyle(NemrionTheme.textPrimary)
-
-                    Text("Installed local model")
-                        .font(.system(size: NemrionScale.textSm, weight: .medium))
-                        .foregroundStyle(NemrionTheme.textSecondary)
-                }
-
-                Spacer()
-
-                Image(systemName: "chevron.up.chevron.down")
-                    .font(.system(size: NemrionScale.textXs, weight: .bold))
-                    .foregroundStyle(NemrionTheme.textTertiary)
-            }
-            .padding(NemrionScale.space3)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(NemrionTheme.surface)
-            .clipShape(RoundedRectangle(cornerRadius: NemrionScale.radius, style: .continuous))
-            .overlay(
-                RoundedRectangle(cornerRadius: NemrionScale.radius, style: .continuous)
-                    .stroke(NemrionTheme.border, lineWidth: 1)
+            settingsTile(
+                eyebrow: "Model",
+                title: selectedModelTitle,
+                detail: modelSelectorDetail,
+                icon: "cpu.fill",
+                tint: NemrionTheme.textSecondary,
+                selected: false,
+                trailingSymbol: app.availableModels.isEmpty ? nil : (isModelPickerPresented ? "chevron.up" : "chevron.down"),
+                trailingLabel: nil
             )
+            .contentShape(Rectangle())
         }
-        .menuStyle(.borderlessButton)
-        .menuIndicator(.hidden)
+        .buttonStyle(.plain)
+        .popover(isPresented: $isModelPickerPresented, attachmentAnchor: .rect(.bounds), arrowEdge: .bottom) {
+            modelPickerPopover
+        }
+    }
+
+    private var modelPickerPopover: some View {
+        VStack(spacing: 0) {
+            ForEach(app.availableModels) { model in
+                Button {
+                    app.settings.modelName = model.id
+                    isModelPickerPresented = false
+                } label: {
+                    HStack(spacing: NemrionScale.space2) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(model.title)
+                                .font(.system(size: NemrionScale.textSm, weight: .semibold))
+                                .foregroundStyle(NemrionTheme.textPrimary)
+
+                            Text(model.id == app.settings.modelName ? "Selected model" : "Available local model")
+                                .font(.system(size: NemrionScale.textXs, weight: .medium))
+                                .foregroundStyle(NemrionTheme.textSecondary)
+                        }
+
+                        Spacer(minLength: 0)
+
+                        if model.id == app.settings.modelName {
+                            Image(systemName: "checkmark")
+                                .font(.system(size: NemrionScale.textXs, weight: .bold))
+                                .foregroundStyle(NemrionTheme.accentBright)
+                        }
+                    }
+                    .padding(.horizontal, NemrionScale.space3)
+                    .padding(.vertical, 10)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .contentShape(Rectangle())
+                    .background(model.id == app.settings.modelName ? NemrionTheme.surfaceInteractive : Color.clear)
+                }
+                .buttonStyle(.plain)
+
+                if model.id != app.availableModels.last?.id {
+                    Divider()
+                        .overlay(NemrionTheme.border)
+                }
+            }
+        }
+        .frame(width: 320)
+        .background(NemrionTheme.surfaceStrong)
+        .nemrionSurface(.tileStrong)
+        .padding(NemrionScale.space2)
     }
 
     private var selectedModelTitle: String {
         if let model = app.availableModels.first(where: { $0.id == app.settings.modelName }) {
             return model.title
         }
+        if app.settings.modelName.isEmpty == false {
+            return app.settings.modelName
+        }
         return app.availableModels.first?.title ?? "No models found"
     }
 
-    private func fieldGroup<Content: View>(title: String, @ViewBuilder content: () -> Content) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(title)
-                .font(.system(size: NemrionScale.textXs, weight: .bold))
-                .tracking(1)
-                .foregroundStyle(NemrionTheme.textTertiary)
-
-            content()
+    private var modelSelectorDetail: String {
+        if app.availableModels.isEmpty {
+            return app.settings.modelName.isEmpty
+                ? "No local models available in Ollama yet"
+                : "Selected model will refresh when Ollama is available"
         }
+        return "Local model"
     }
 
     private var runtimeActionDisabled: Bool {
@@ -279,6 +237,118 @@ struct SettingsView: View {
     private func handleRuntimeAction() {
         guard app.dependencyStatus == .ollamaStopped else { return }
         app.startOllama()
+    }
+
+    private func settingsTile(
+        eyebrow: String,
+        title: String,
+        detail: String,
+        icon: String,
+        tint: Color,
+        selected: Bool,
+        trailingSymbol: String? = nil,
+        trailingLabel: String? = nil
+    ) -> some View {
+        HStack(alignment: .top, spacing: NemrionScale.space2) {
+            SurfaceIconBadge(symbol: icon, tint: tint)
+
+            VStack(alignment: .leading, spacing: 6) {
+                Text(eyebrow.uppercased())
+                    .font(.system(size: NemrionScale.textXs, weight: .bold))
+                    .tracking(1)
+                    .foregroundStyle(NemrionTheme.textTertiary)
+
+                Text(title)
+                    .font(.system(size: NemrionScale.textMd, weight: .semibold))
+                    .foregroundStyle(NemrionTheme.textPrimary)
+
+                Text(detail)
+                    .font(.system(size: NemrionScale.textSm, weight: .medium))
+                    .foregroundStyle(NemrionTheme.textSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            Spacer(minLength: 0)
+
+            if trailingSymbol != nil || trailingLabel != nil {
+                VStack(alignment: .trailing, spacing: 8) {
+                    if let trailingSymbol {
+                        Image(systemName: trailingSymbol)
+                            .font(.system(size: NemrionScale.textXs, weight: .bold))
+                            .foregroundStyle(NemrionTheme.textTertiary)
+                    }
+
+                    if let trailingLabel {
+                        Text(trailingLabel)
+                            .font(.system(size: NemrionScale.textXs, weight: .medium))
+                            .foregroundStyle(NemrionTheme.textTertiary)
+                    }
+                }
+            } else if selected {
+                Image(systemName: "checkmark.circle.fill")
+                    .font(.system(size: NemrionScale.textMd, weight: .semibold))
+                    .foregroundStyle(NemrionTheme.accentBright)
+            }
+        }
+        .padding(NemrionScale.space3)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .nemrionSurface(selected ? .interactive : .tile)
+    }
+
+    private func statTile(
+        eyebrow: String,
+        title: String,
+        value: String,
+        icon: String,
+        tint: Color,
+        emphasized: Bool,
+        trailingSymbol: String?
+    ) -> some View {
+        HStack(alignment: .top, spacing: NemrionScale.space2) {
+            SurfaceIconBadge(symbol: icon, tint: tint)
+
+            VStack(alignment: .leading, spacing: 6) {
+                Text(eyebrow.uppercased())
+                    .font(.system(size: NemrionScale.textXs, weight: .bold))
+                    .tracking(1)
+                    .foregroundStyle(NemrionTheme.textTertiary)
+
+                Text(title)
+                    .font(.system(size: NemrionScale.textSm, weight: .semibold))
+                    .foregroundStyle(NemrionTheme.textPrimary)
+
+                Text(value)
+                    .font(.system(size: NemrionScale.textSm, weight: .medium))
+                    .foregroundStyle(tint)
+            }
+
+            Spacer(minLength: 0)
+
+            if let trailingSymbol {
+                Image(systemName: trailingSymbol)
+                    .font(.system(size: NemrionScale.textXs, weight: .bold))
+                    .foregroundStyle(NemrionTheme.textTertiary)
+            }
+        }
+        .padding(NemrionScale.space3)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .nemrionSurface(emphasized ? .interactive : .tileStrong)
+    }
+
+    private func statusPill(title: String, value: String, tint: Color) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(title.uppercased())
+                .font(.system(size: NemrionScale.textXs, weight: .bold))
+                .tracking(1)
+                .foregroundStyle(NemrionTheme.textTertiary)
+
+            Text(value)
+                .font(.system(size: NemrionScale.textSm, weight: .semibold))
+                .foregroundStyle(tint)
+        }
+        .padding(.horizontal, NemrionScale.space3)
+        .padding(.vertical, NemrionScale.space2)
+        .nemrionSurface(.tileStrong)
     }
 
     private func settingsCard<Content: View>(title: String, subtitle: String, @ViewBuilder content: () -> Content) -> some View {
@@ -298,24 +368,11 @@ struct SettingsView: View {
         }
         .padding(NemrionScale.space3)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(red: 0.13, green: 0.14, blue: 0.16).opacity(0.94))
-        .clipShape(RoundedRectangle(cornerRadius: NemrionScale.radius, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: NemrionScale.radius, style: .continuous)
-                .stroke(NemrionTheme.border, lineWidth: 1)
-        )
+        .nemrionSurface(.section)
     }
 
     private var settingsBackground: some View {
-        LinearGradient(
-            colors: [
-                Color(red: 0.07, green: 0.07, blue: 0.08),
-                Color(red: 0.10, green: 0.11, blue: 0.12)
-            ],
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
-        )
-        .ignoresSafeArea()
+        Color(red: 0.09, green: 0.10, blue: 0.11)
     }
 
     private var runtimeIcon: String {
@@ -341,84 +398,28 @@ struct SettingsView: View {
     }
 }
 
-private struct SettingsValueField: View {
-    let icon: String
-    let title: String
-    let detail: String
-
-    var body: some View {
-        HStack(spacing: NemrionScale.space2) {
-            Image(systemName: icon)
-                .font(.system(size: NemrionScale.textSm, weight: .semibold))
-                .foregroundStyle(NemrionTheme.textSecondary)
-                .frame(width: 28, height: 28)
-                .background(NemrionTheme.surfaceStrong)
-                .clipShape(RoundedRectangle(cornerRadius: NemrionScale.radius, style: .continuous))
-
-            VStack(alignment: .leading, spacing: 4) {
-                Text(title)
-                    .font(.system(size: NemrionScale.textMd, weight: .semibold))
-                    .foregroundStyle(NemrionTheme.textPrimary)
-
-                Text(detail)
-                    .font(.system(size: NemrionScale.textSm, weight: .medium))
-                    .foregroundStyle(NemrionTheme.textSecondary)
-            }
-
-            Spacer()
-        }
-        .padding(NemrionScale.space3)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(NemrionTheme.surface)
-        .clipShape(RoundedRectangle(cornerRadius: NemrionScale.radius, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: NemrionScale.radius, style: .continuous)
-                .stroke(NemrionTheme.border, lineWidth: 1)
-        )
-    }
-}
-
 private struct HotkeyValueField: View {
     let hotKey: String
 
     var body: some View {
-        VStack(alignment: .leading, spacing: NemrionScale.space2) {
-            HStack(spacing: 8) {
-                Image(systemName: "keyboard")
+        HStack(spacing: NemrionScale.space3) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text("HOTKEY")
+                    .tracking(1)
+                    .font(.system(size: NemrionScale.textXs, weight: .bold))
+                    .foregroundStyle(NemrionTheme.textTertiary)
+
+                Text("Shortcut")
                     .font(.system(size: NemrionScale.textSm, weight: .semibold))
-                    .foregroundStyle(NemrionTheme.textSecondary)
-                    .frame(width: 28, height: 28)
-                    .background(NemrionTheme.surfaceStrong)
-                    .clipShape(RoundedRectangle(cornerRadius: NemrionScale.radius, style: .continuous))
-
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Shortcut")
-                        .font(.system(size: NemrionScale.textSm, weight: .semibold))
-                        .foregroundStyle(NemrionTheme.textPrimary)
-
-                    Text("Global trigger")
-                        .font(.system(size: NemrionScale.textSm, weight: .medium))
-                        .foregroundStyle(NemrionTheme.textSecondary)
-                }
+                    .foregroundStyle(NemrionTheme.textPrimary)
             }
 
+            Spacer(minLength: 0)
+
             ShortcutChips(shortcut: hotKey)
-                .padding(10)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .background(NemrionTheme.surfaceStrong)
-                .clipShape(RoundedRectangle(cornerRadius: NemrionScale.radius, style: .continuous))
-                .overlay(
-                    RoundedRectangle(cornerRadius: NemrionScale.radius, style: .continuous)
-                        .stroke(NemrionTheme.border, lineWidth: 1)
-                )
         }
         .padding(NemrionScale.space3)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(NemrionTheme.surface)
-        .clipShape(RoundedRectangle(cornerRadius: NemrionScale.radius, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: NemrionScale.radius, style: .continuous)
-                .stroke(NemrionTheme.border, lineWidth: 1)
-        )
+        .nemrionSurface(.tile)
     }
 }
