@@ -7,7 +7,7 @@
         "key": "Nemrion needs Accessibility access to read selected text, show the contextual bubble accurately, and replace the rewritten text back into the source app.",
         "location": {
           "startingColumn": 18,
-          "startingLine": 29
+          "startingLine": 25
         }
       },
       {
@@ -15,7 +15,7 @@
         "key": "Accessibility access granted",
         "location": {
           "startingColumn": 34,
-          "startingLine": 24
+          "startingLine": 20
         }
       },
       {
@@ -23,7 +23,7 @@
         "key": "Accessibility access required",
         "location": {
           "startingColumn": 67,
-          "startingLine": 24
+          "startingLine": 20
         }
       },
       {
@@ -31,7 +31,7 @@
         "key": "Request Access",
         "location": {
           "startingColumn": 27,
-          "startingLine": 37
+          "startingLine": 33
         }
       },
       {
@@ -39,7 +39,7 @@
         "key": "Open System Settings",
         "location": {
           "startingColumn": 27,
-          "startingLine": 44
+          "startingLine": 40
         }
       }
     ]

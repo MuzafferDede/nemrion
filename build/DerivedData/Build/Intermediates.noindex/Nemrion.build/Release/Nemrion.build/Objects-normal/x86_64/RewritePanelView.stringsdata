@@ -55,15 +55,15 @@
         "key": "Grant Access",
         "location": {
           "startingColumn": 27,
-          "startingLine": 192
+          "startingLine": 199
         }
       },
       {
         "comment": "",
         "key": "Open Settings",
         "location": {
-          "startingColumn": 27,
-          "startingLine": 201
+          "startingColumn": 23,
+          "startingLine": 207
         }
       },
       {
@@ -71,7 +71,7 @@
         "key": "Applying...",
         "location": {
           "startingColumn": 46,
-          "startingLine": 217
+          "startingLine": 222
         }
       },
       {
@@ -79,7 +79,7 @@
         "key": "Apply",
         "location": {
           "startingColumn": 62,
-          "startingLine": 217
+          "startingLine": 222
         }
       }
     ]
