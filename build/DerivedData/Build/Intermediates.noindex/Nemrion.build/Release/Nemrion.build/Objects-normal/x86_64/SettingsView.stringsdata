@@ -39,7 +39,7 @@
         "key": "Selected model",
         "location": {
           "startingColumn": 71,
-          "startingLine": 174
+          "startingLine": 177
         }
       },
       {
@@ -47,7 +47,7 @@
         "key": "Available local model",
         "location": {
           "startingColumn": 90,
-          "startingLine": 174
+          "startingLine": 177
         }
       },
       {
@@ -55,7 +55,7 @@
         "key": "HOTKEY",
         "location": {
           "startingColumn": 22,
-          "startingLine": 407
+          "startingLine": 417
         }
       },
       {
@@ -63,7 +63,7 @@
         "key": "Shortcut",
         "location": {
           "startingColumn": 22,
-          "startingLine": 412
+          "startingLine": 422
         }
       }
     ]
