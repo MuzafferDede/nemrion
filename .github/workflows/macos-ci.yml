@@ -72,8 +72,10 @@ jobs:
           name: Nemrion-macOS-unsigned
           path: Nemrion-macOS-unsigned.zip
 
-      - name: Attach Release Asset
-        if: github.event_name == 'release'
+      - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
+          generate_release_notes: true
           files: Nemrion-macOS-unsigned.zip
