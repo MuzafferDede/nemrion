@@ -15,6 +15,9 @@ struct NemrionApp: App {
                 }
         } label: {
             Image(nsImage: Self.menuBarStatusImage)
+                .resizable()
+                .aspectRatio(1, contentMode: .fit)
+                .frame(width: 20, height: 20)
         }
         .menuBarExtraStyle(.window)
     }
@@ -23,17 +26,13 @@ struct NemrionApp: App {
 private extension NemrionApp {
     static let menuBarStatusImage: NSImage = {
         let renderer = ImageRenderer(
-            content: NemrionMark(
-                primary: .black,
-                secondary: Color.black.opacity(0.72),
-                lineWidth: 0.11
-            )
-            .frame(width: 16, height: 16)
+            content: NemrionMark(lineWidth: 0.11)
+            .frame(width: 20, height: 20)
         )
         renderer.scale = 2
 
-        let image = renderer.nsImage ?? NSImage(size: NSSize(width: 16, height: 16))
-        image.isTemplate = true
+        let image = renderer.nsImage ?? NSImage(size: NSSize(width: 20, height: 20))
+        image.isTemplate = false
         return image
     }()
 }

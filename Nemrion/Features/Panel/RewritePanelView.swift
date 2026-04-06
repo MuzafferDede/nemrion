@@ -10,6 +10,9 @@ struct RewritePanelView: View {
 
             VStack(spacing: NemrionScale.space3) {
                 topBar
+                if let headerMessage {
+                    headerMessageView(headerMessage)
+                }
                 bodyContainer
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
@@ -34,7 +37,7 @@ struct RewritePanelView: View {
                     Text("Polish")
                         .font(.system(size: NemrionScale.textLg, weight: .bold))
                 } icon: {
-                    NemrionMark(primary: NemrionTheme.accentBright, secondary: NemrionTheme.textSecondary, lineWidth: 0.11)
+                    NemrionMark(lineWidth: 0.11)
                         .frame(width: 18, height: 18)
                 }
                 .foregroundStyle(NemrionTheme.textPrimary)
@@ -100,7 +103,7 @@ struct RewritePanelView: View {
             } label: {
                 Image(systemName: "arrow.up")
                     .font(.system(size: NemrionScale.textSm, weight: .bold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(NemrionTheme.inkOnAccent)
                     .frame(width: 36, height: 36)
                     .nemrionSurface(.interactive)
             }
@@ -111,41 +114,39 @@ struct RewritePanelView: View {
         }
         .padding(NemrionScale.space2)
         .frame(minHeight: 52)
-        .nemrionSurface(.tileStrong)
+        .nemrionSurface(.tile)
     }
 
     private var resultSurface: some View {
         VStack(alignment: .leading, spacing: NemrionScale.space2) {
             resultHeader
 
-            VStack(spacing: 0) {
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 12) {
-                        if viewModel.outputText.isEmpty, viewModel.phase == .generating {
-                            streamingPlaceholder
-                        } else {
-                            Text(outputBody)
-                                .font(.system(size: NemrionScale.textMd, weight: .medium))
-                                .lineSpacing(5)
-                                .foregroundStyle(outputColor)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .textSelection(.enabled)
-                        }
+            ScrollView {
+                VStack(alignment: .leading, spacing: 12) {
+                    if viewModel.outputText.isEmpty, viewModel.phase == .generating {
+                        streamingPlaceholder
+                    } else {
+                        Text(outputBody)
+                            .font(.system(size: NemrionScale.textMd, weight: .medium))
+                            .lineSpacing(5)
+                            .foregroundStyle(outputColor)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .textSelection(.enabled)
                     }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(NemrionScale.space3)
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .nemrionSurface(.inset)
-                .padding(NemrionScale.space2)
-
-                Divider()
-                    .overlay(NemrionTheme.border)
-
-                resultActions
-                    .padding(NemrionScale.space3)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(NemrionScale.space3)
             }
-            .nemrionSurface(.tile)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Color.black.opacity(0.12))
+            .overlay {
+                RoundedRectangle(cornerRadius: NemrionScale.radius, style: .continuous)
+                    .stroke(NemrionTheme.border.opacity(0.6), lineWidth: 1)
+            }
+            .clipShape(RoundedRectangle(cornerRadius: NemrionScale.radius, style: .continuous))
+
+            resultActions
+                .padding(.top, NemrionScale.space1)
         }
         .padding(NemrionScale.space3)
         .nemrionSurface(.section)
@@ -171,6 +172,22 @@ struct RewritePanelView: View {
                 }
             }
         }
+    }
+
+    @ViewBuilder
+    private func headerMessageView(_ message: String) -> some View {
+        Text(message)
+            .font(.system(size: NemrionScale.textSm, weight: .medium))
+            .foregroundStyle(headerMessageColor(message))
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 2)
+    }
+
+    private func headerMessageColor(_ message: String) -> Color {
+        if message == NemrionError.noSelection.localizedDescription {
+            return NemrionTheme.brandMarkPrimary
+        }
+        return NemrionTheme.error
     }
 
     private var resultActions: some View {
@@ -221,9 +238,16 @@ struct RewritePanelView: View {
             return "Generating a rewritten version."
         case .ready:
             return "Adjust the prompt if needed, then apply the result."
-        case let .failure(message):
+        case .failure:
+            return "Fix the issue below, then try again."
+        }
+    }
+
+    private var headerMessage: String? {
+        if case let .failure(message) = viewModel.phase {
             return message
         }
+        return nil
     }
 
     private var sourceLabel: String {
@@ -247,9 +271,9 @@ struct RewritePanelView: View {
 
     private var outputBody: String {
         switch viewModel.phase {
-        case let .failure(message):
-            return message
         case .idle:
+            return "The rewritten text will appear here."
+        case .failure:
             return "The rewritten text will appear here."
         default:
             return viewModel.outputText
@@ -257,9 +281,6 @@ struct RewritePanelView: View {
     }
 
     private var outputColor: Color {
-        if case .failure = viewModel.phase {
-            return NemrionTheme.error
-        }
         return viewModel.outputText.isEmpty ? NemrionTheme.textSecondary : NemrionTheme.textPrimary
     }
 

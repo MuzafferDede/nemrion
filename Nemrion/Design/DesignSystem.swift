@@ -1,26 +1,25 @@
 import SwiftUI
 
 enum NemrionTheme {
-    static let backgroundStart = Color(red: 0.04, green: 0.04, blue: 0.05)
-    static let backgroundEnd = Color(red: 0.08, green: 0.09, blue: 0.10)
-    static let backgroundRaised = Color(red: 0.11, green: 0.12, blue: 0.14)
-    static let panelShell = Color(red: 0.08, green: 0.09, blue: 0.11).opacity(0.86)
-    static let surface = Color.white.opacity(0.055)
-    static let surfaceStrong = Color.white.opacity(0.085)
-    static let surfaceInteractive = Color(red: 0.16, green: 0.17, blue: 0.19).opacity(0.95)
-    static let border = Color.white.opacity(0.10)
-    static let borderStrong = Color.white.opacity(0.16)
-    static let textPrimary = Color.white.opacity(0.97)
-    static let textSecondary = Color.white.opacity(0.70)
-    static let textTertiary = Color.white.opacity(0.48)
-    static let accent = Color(red: 0.11, green: 0.18, blue: 0.30)
-    static let accentBright = Color(red: 0.17, green: 0.27, blue: 0.43)
-    static let accentMuted = Color(red: 0.10, green: 0.14, blue: 0.22)
-    static let blueStrong = Color(red: 0.20, green: 0.21, blue: 0.24)
-    static let blueBright = Color(red: 0.27, green: 0.28, blue: 0.32)
-    static let success = Color(red: 0.36, green: 0.86, blue: 0.68)
-    static let warning = Color(red: 0.96, green: 0.74, blue: 0.36)
-    static let error = Color(red: 0.98, green: 0.46, blue: 0.51)
+    static let backgroundStart = Color(red: 0.043, green: 0.051, blue: 0.071)
+    static let backgroundRaised = Color(red: 0.086, green: 0.102, blue: 0.133)
+    static let surface = Color(red: 0.106, green: 0.122, blue: 0.157).opacity(0.92)
+    static let surfaceStrong = Color(red: 0.145, green: 0.161, blue: 0.200).opacity(0.96)
+    static let surfaceInteractive = Color(red: 0.153, green: 0.612, blue: 0.451).opacity(0.95)
+    static let border = Color(red: 0.180, green: 0.208, blue: 0.255).opacity(0.96)
+    static let borderStrong = Color(red: 0.231, green: 0.310, blue: 0.455).opacity(0.46)
+    static let textPrimary = Color.white
+    static let textSecondary = Color(red: 0.723, green: 0.777, blue: 0.862)
+    static let textTertiary = Color(red: 0.560, green: 0.616, blue: 0.708)
+    static let accent = Color(red: 0.153, green: 0.612, blue: 0.451)
+    static let accentMuted = Color(red: 0.118, green: 0.494, blue: 0.361)
+    static let brandMarkPrimary = Color(red: 0.898, green: 0.416, blue: 0.180)
+    static let brandMarkSecondary = Color.white.opacity(0.74)
+    static let blueStrong = Color(red: 0.231, green: 0.310, blue: 0.455)
+    static let inkOnAccent = Color.black.opacity(0.84)
+    static let success = accent
+    static let warning = accent
+    static let error = accent
 }
 
 enum NemrionScale {
@@ -45,109 +44,12 @@ enum NemrionSurfaceKind {
     case tile
     case tileStrong
     case interactive
-    case inset
 }
 
 struct NemrionBackground: View {
     var body: some View {
-        ZStack {
-            LinearGradient(
-                colors: [NemrionTheme.backgroundStart, NemrionTheme.backgroundEnd],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-
-            RadialGradient(
-                colors: [NemrionTheme.accent.opacity(0.22), .clear],
-                center: .topTrailing,
-                startRadius: 0,
-                endRadius: 520
-            )
-            .offset(x: 120, y: -80)
-
-            RadialGradient(
-                colors: [Color.white.opacity(0.08), .clear],
-                center: .topLeading,
-                startRadius: 0,
-                endRadius: 420
-            )
-            .offset(x: -120, y: -120)
-
-            MeshBackdrop()
-                .blendMode(.plusLighter)
-                .opacity(0.22)
-        }
+        NemrionTheme.backgroundStart
         .ignoresSafeArea()
-    }
-}
-
-struct MeshBackdrop: View {
-    var body: some View {
-        ZStack {
-            Circle()
-                .fill(
-                    LinearGradient(
-                        colors: [NemrionTheme.accent.opacity(0.28), .clear],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-                .blur(radius: 80)
-                .frame(width: 320, height: 320)
-                .offset(x: 180, y: -100)
-
-            Circle()
-                .fill(
-                    LinearGradient(
-                        colors: [Color.white.opacity(0.16), .clear],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-                .blur(radius: 90)
-                .frame(width: 260, height: 260)
-                .offset(x: -170, y: 140)
-        }
-    }
-}
-
-struct GlassCardModifier: ViewModifier {
-    var radius: CGFloat = NemrionScale.radius
-
-    func body(content: Content) -> some View {
-        content
-            .background(.ultraThinMaterial.opacity(0.72))
-            .background(NemrionTheme.panelShell)
-            .overlay(alignment: .top) {
-                LinearGradient(
-                    colors: [Color.white.opacity(0.14), .clear],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-                .frame(height: 120)
-                .clipShape(RoundedRectangle(cornerRadius: radius, style: .continuous))
-            }
-            .clipShape(RoundedRectangle(cornerRadius: radius, style: .continuous))
-            .overlay(
-                RoundedRectangle(cornerRadius: radius, style: .continuous)
-                    .stroke(NemrionTheme.border, lineWidth: 1)
-            )
-            .shadow(color: .black.opacity(0.44), radius: 34, y: 18)
-    }
-}
-
-struct SectionCardModifier: ViewModifier {
-    var radius: CGFloat = NemrionScale.radius
-    var strong: Bool = false
-
-    func body(content: Content) -> some View {
-        content
-            .background(strong ? NemrionTheme.surfaceStrong : NemrionTheme.surface)
-            .overlay {
-                RoundedRectangle(cornerRadius: radius, style: .continuous)
-                    .stroke(strong ? NemrionTheme.borderStrong : NemrionTheme.border, lineWidth: 1)
-            }
-            .clipShape(RoundedRectangle(cornerRadius: radius, style: .continuous))
     }
 }
 
@@ -169,30 +71,21 @@ struct NemrionSurfaceModifier: ViewModifier {
     private var background: some View {
         switch kind {
         case .shell:
-            LinearGradient(
-                colors: [
-                    Color(red: 0.09, green: 0.10, blue: 0.11),
-                    Color(red: 0.12, green: 0.13, blue: 0.15)
-                ],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
+            NemrionTheme.backgroundRaised
         case .section:
-            Color(red: 0.13, green: 0.14, blue: 0.16).opacity(0.94)
+            NemrionTheme.backgroundRaised.opacity(0.95)
         case .tile:
             NemrionTheme.surface
         case .tileStrong:
             NemrionTheme.surfaceStrong
         case .interactive:
             NemrionTheme.surfaceInteractive
-        case .inset:
-            Color.black.opacity(0.12)
         }
     }
 
     private var border: Color {
         switch kind {
-        case .shell, .section, .tile, .tileStrong, .inset:
+        case .shell, .section, .tile, .tileStrong:
             return NemrionTheme.border
         case .interactive:
             return NemrionTheme.borderStrong
@@ -201,14 +94,6 @@ struct NemrionSurfaceModifier: ViewModifier {
 }
 
 extension View {
-    func glassCard(radius: CGFloat = NemrionScale.radius) -> some View {
-        modifier(GlassCardModifier(radius: radius))
-    }
-
-    func sectionCard(radius: CGFloat = NemrionScale.radius, strong: Bool = false) -> some View {
-        modifier(SectionCardModifier(radius: radius, strong: strong))
-    }
-
     func nemrionSurface(_ kind: NemrionSurfaceKind, radius: CGFloat = NemrionScale.radius) -> some View {
         modifier(NemrionSurfaceModifier(kind: kind, radius: radius))
     }
@@ -255,21 +140,13 @@ struct PanelButtonStyle: ButtonStyle {
         switch variant {
         case .primary:
             RoundedRectangle(cornerRadius: NemrionScale.radius, style: .continuous)
-                .fill(
-                    LinearGradient(
-                        colors: configuration.isPressed
-                        ? [NemrionTheme.accent.opacity(0.92), NemrionTheme.accent.opacity(0.80)]
-                        : [NemrionTheme.accentBright, NemrionTheme.accent],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
+                .fill(configuration.isPressed ? NemrionTheme.accentMuted : NemrionTheme.accent)
         case .secondary:
             RoundedRectangle(cornerRadius: NemrionScale.radius, style: .continuous)
                 .fill(
                     configuration.isPressed
-                    ? NemrionTheme.blueStrong.opacity(0.96)
-                    : NemrionTheme.blueBright.opacity(0.98)
+                    ? NemrionTheme.surfaceStrong.opacity(0.98)
+                    : NemrionTheme.surface.opacity(0.98)
                 )
         case .quiet:
             NemrionTheme.surface.opacity(configuration.isPressed ? 0.65 : 0.35)
@@ -279,9 +156,9 @@ struct PanelButtonStyle: ButtonStyle {
     private func borderColor(configuration: Configuration) -> Color {
         switch variant {
         case .primary:
-            return Color.white.opacity(configuration.isPressed ? 0.14 : 0.24)
+            return NemrionTheme.accentMuted.opacity(configuration.isPressed ? 0.42 : 0.68)
         case .secondary:
-            return Color.white.opacity(configuration.isPressed ? 0.10 : 0.18)
+            return NemrionTheme.borderStrong.opacity(configuration.isPressed ? 0.38 : 0.56)
         case .quiet:
             return NemrionTheme.border.opacity(0.45)
         }
@@ -289,8 +166,10 @@ struct PanelButtonStyle: ButtonStyle {
 
     private var foregroundColor: Color {
         switch variant {
-        case .primary, .secondary:
-            return .white
+        case .primary:
+            return NemrionTheme.textPrimary
+        case .secondary:
+            return NemrionTheme.textPrimary
         case .quiet:
             return NemrionTheme.textPrimary
         }
@@ -329,68 +208,36 @@ struct EyebrowLabel: View {
 struct SurfaceIconBadge: View {
     let symbol: String
     var tint: Color
+    var backgroundColor: Color? = nil
+    var symbolColor: Color? = nil
+    var size: CGFloat = 32
 
     var body: some View {
         ZStack {
             RoundedRectangle(cornerRadius: NemrionScale.radius, style: .continuous)
-                .fill(tint.opacity(0.14))
+                .fill(backgroundColor ?? NemrionTheme.backgroundStart.opacity(0.92))
 
             if symbol == "nemrion.mark" {
                 NemrionMark(
-                    primary: tint,
-                    secondary: tint.opacity(0.66),
+                    primary: symbolColor ?? NemrionTheme.brandMarkPrimary,
+                    secondary: symbolColor ?? NemrionTheme.brandMarkSecondary,
                     lineWidth: 0.11
                 )
-                .padding(6)
+                .padding(size * 0.19)
             } else {
                 Image(systemName: symbol)
                     .font(.system(size: NemrionScale.textSm, weight: .bold))
-                    .foregroundStyle(tint)
+                    .foregroundStyle(symbolColor ?? tint)
             }
         }
-        .frame(width: 32, height: 32)
-    }
-}
-
-struct MetricPill: View {
-    let title: String
-    let value: String
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text(title)
-                .font(.system(size: 10, weight: .bold, design: .rounded))
-                .tracking(1.2)
-                .foregroundStyle(NemrionTheme.textTertiary)
-
-            Text(value)
-                .font(.system(size: 13, weight: .semibold))
-                .foregroundStyle(NemrionTheme.textPrimary)
-        }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 12)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .sectionCard(radius: NemrionScale.radius, strong: true)
-    }
-}
-
-struct GradientStroke: View {
-    var body: some View {
-        RoundedRectangle(cornerRadius: 999, style: .continuous)
-            .stroke(
-                LinearGradient(
-                    colors: [Color.white.opacity(0.32), Color.white.opacity(0.06)],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                ),
-                lineWidth: 1
-            )
+        .frame(width: size, height: size)
+        .aspectRatio(1, contentMode: .fit)
     }
 }
 
 struct NemrionMark: View {
-    var primary: Color = .white
-    var secondary: Color = Color.white.opacity(0.58)
+    var primary: Color = NemrionTheme.brandMarkPrimary
+    var secondary: Color = NemrionTheme.brandMarkSecondary
     var lineWidth: CGFloat = 0.095
 
     var body: some View {
@@ -428,11 +275,7 @@ struct NemrionMark: View {
                     )
                 }
                 .stroke(
-                    LinearGradient(
-                        colors: [secondary, primary],
-                        startPoint: .leading,
-                        endPoint: .trailing
-                    ),
+                    primary,
                     style: StrokeStyle(lineWidth: stroke * 1.06, lineCap: .round, lineJoin: .round)
                 )
 

@@ -5,13 +5,16 @@ struct SettingsView: View {
     @State private var isModelPickerPresented = false
 
     var body: some View {
-        VStack(alignment: .leading, spacing: NemrionScale.space4) {
-            header
-            workspaceCard
-            runtimeCard
+        ZStack {
+            NemrionBackground()
+
+            VStack(alignment: .leading, spacing: NemrionScale.space4) {
+                header
+                workspaceCard
+                runtimeCard
+            }
+            .padding(NemrionScale.space4)
         }
-        .padding(NemrionScale.space4)
-        .background(settingsBackground)
     }
 
     private var header: some View {
@@ -103,7 +106,8 @@ struct SettingsView: View {
                 icon: "nemrion.mark",
                 tint: app.permissionMonitor.isTrusted ? NemrionTheme.success : NemrionTheme.warning,
                 emphasized: false,
-                trailingSymbol: nil
+                trailingSymbol: nil,
+                iconSize: 36
             )
 
             if app.permissionMonitor.isTrusted == false {
@@ -128,8 +132,8 @@ struct SettingsView: View {
                 title: provider.displayName,
                 detail: "Local-first runtime using shared Ollama models.",
                 icon: "shippingbox.fill",
-                tint: NemrionTheme.accentBright,
-                selected: app.settings.provider == provider
+                tint: NemrionTheme.textSecondary,
+                trailingSymbol: app.settings.provider == provider ? "checkmark.circle.fill" : nil
             )
         }
         .buttonStyle(.plain)
@@ -146,7 +150,6 @@ struct SettingsView: View {
                 detail: modelSelectorDetail,
                 icon: "cpu.fill",
                 tint: NemrionTheme.textSecondary,
-                selected: false,
                 trailingSymbol: app.availableModels.isEmpty ? nil : (isModelPickerPresented ? "chevron.up" : "chevron.down"),
                 trailingLabel: nil
             )
@@ -169,11 +172,11 @@ struct SettingsView: View {
                         VStack(alignment: .leading, spacing: 4) {
                             Text(model.title)
                                 .font(.system(size: NemrionScale.textSm, weight: .semibold))
-                                .foregroundStyle(NemrionTheme.textPrimary)
+                                .foregroundStyle(model.id == app.settings.modelName ? NemrionTheme.inkOnAccent : NemrionTheme.textPrimary)
 
                             Text(model.id == app.settings.modelName ? "Selected model" : "Available local model")
                                 .font(.system(size: NemrionScale.textXs, weight: .medium))
-                                .foregroundStyle(NemrionTheme.textSecondary)
+                                .foregroundStyle(model.id == app.settings.modelName ? NemrionTheme.textPrimary : NemrionTheme.textSecondary)
                         }
 
                         Spacer(minLength: 0)
@@ -181,7 +184,7 @@ struct SettingsView: View {
                         if model.id == app.settings.modelName {
                             Image(systemName: "checkmark")
                                 .font(.system(size: NemrionScale.textXs, weight: .bold))
-                                .foregroundStyle(NemrionTheme.accentBright)
+                                .foregroundStyle(NemrionTheme.inkOnAccent)
                         }
                     }
                     .padding(.horizontal, NemrionScale.space3)
@@ -245,12 +248,18 @@ struct SettingsView: View {
         detail: String,
         icon: String,
         tint: Color,
-        selected: Bool,
+        iconBackground: Color? = nil,
+        iconForeground: Color? = nil,
         trailingSymbol: String? = nil,
         trailingLabel: String? = nil
     ) -> some View {
         HStack(alignment: .top, spacing: NemrionScale.space2) {
-            SurfaceIconBadge(symbol: icon, tint: tint)
+            SurfaceIconBadge(
+                symbol: icon,
+                tint: tint,
+                backgroundColor: iconBackground,
+                symbolColor: iconForeground
+            )
 
             VStack(alignment: .leading, spacing: 6) {
                 Text(eyebrow.uppercased())
@@ -284,15 +293,11 @@ struct SettingsView: View {
                             .foregroundStyle(NemrionTheme.textTertiary)
                     }
                 }
-            } else if selected {
-                Image(systemName: "checkmark.circle.fill")
-                    .font(.system(size: NemrionScale.textMd, weight: .semibold))
-                    .foregroundStyle(NemrionTheme.accentBright)
             }
         }
         .padding(NemrionScale.space3)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .nemrionSurface(selected ? .interactive : .tile)
+        .nemrionSurface(.tile)
     }
 
     private func statTile(
@@ -302,10 +307,11 @@ struct SettingsView: View {
         icon: String,
         tint: Color,
         emphasized: Bool,
-        trailingSymbol: String?
+        trailingSymbol: String?,
+        iconSize: CGFloat = 32
     ) -> some View {
         HStack(alignment: .top, spacing: NemrionScale.space2) {
-            SurfaceIconBadge(symbol: icon, tint: tint)
+            SurfaceIconBadge(symbol: icon, tint: tint, size: iconSize)
 
             VStack(alignment: .leading, spacing: 6) {
                 Text(eyebrow.uppercased())
@@ -370,11 +376,6 @@ struct SettingsView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .nemrionSurface(.section)
     }
-
-    private var settingsBackground: some View {
-        Color(red: 0.09, green: 0.10, blue: 0.11)
-    }
-
     private var runtimeIcon: String {
         switch app.dependencyStatus {
         case .ready:

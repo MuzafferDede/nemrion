@@ -12,11 +12,7 @@ struct PermissionGuidanceView: View {
                     RoundedRectangle(cornerRadius: NemrionScale.radius, style: .continuous)
                         .fill((isTrusted ? NemrionTheme.success : NemrionTheme.warning).opacity(0.14))
 
-                    NemrionMark(
-                        primary: isTrusted ? NemrionTheme.success : NemrionTheme.warning,
-                        secondary: (isTrusted ? NemrionTheme.success : NemrionTheme.warning).opacity(0.66),
-                        lineWidth: 0.11
-                    )
+                    NemrionMark(lineWidth: 0.11)
                     .padding(6)
                 }
                 .frame(width: 28, height: 28)

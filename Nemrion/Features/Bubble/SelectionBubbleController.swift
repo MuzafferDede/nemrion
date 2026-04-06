@@ -178,11 +178,7 @@ private struct BubbleButton: View {
 
     var body: some View {
         Button(action: action) {
-            NemrionMark(
-                primary: hovering ? Color.white : Color.white.opacity(0.96),
-                secondary: hovering ? Color.white.opacity(0.64) : Color.white.opacity(0.56),
-                lineWidth: 0.11
-            )
+            NemrionMark(lineWidth: 0.11)
             .padding(8)
             .frame(width: 34, height: 34)
             .background(

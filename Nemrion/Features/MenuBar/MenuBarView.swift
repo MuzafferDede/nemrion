@@ -68,7 +68,6 @@ struct MenuBarView: View {
             symbol: runtimeSymbol,
             title: "Runtime",
             subtitle: statusText,
-            isPrimary: false,
             tint: runtimeColor,
             emphasized: runtimeActionDisabled == false,
             showsArrow: runtimeActionDisabled == false
@@ -84,7 +83,7 @@ struct MenuBarView: View {
                 symbol: "nemrion.mark",
                 title: "Polish",
                 subtitle: "Rewrite",
-                isPrimary: true,
+                tint: NemrionTheme.textSecondary,
                 showsArrow: true
             )
         }
@@ -124,14 +123,6 @@ struct MenuBarView: View {
         }
     }
 
-    private var runtimeBackground: Color {
-        runtimeActionDisabled ? Color.white.opacity(0.06) : NemrionTheme.surfaceInteractive
-    }
-
-    private var runtimeBorder: Color {
-        runtimeActionDisabled ? NemrionTheme.border : NemrionTheme.borderStrong
-    }
-
     private func handleRuntimeAction() {
         guard app.dependencyStatus == .ollamaStopped else { return }
         app.startOllama()
@@ -152,22 +143,21 @@ struct MenuBarView: View {
         symbol: String,
         title: String,
         subtitle: String,
-        isPrimary: Bool,
         tint: Color? = nil,
         emphasized: Bool = false,
         showsArrow: Bool = false
     ) -> some View {
         return HStack(spacing: NemrionScale.space2) {
-            actionIcon(symbol: symbol, strong: isPrimary, tint: tint)
+            actionIcon(symbol: symbol, tint: tint)
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
                     .font(.system(size: NemrionScale.textSm, weight: .semibold))
-                    .foregroundStyle(isPrimary ? Color.white : NemrionTheme.textPrimary)
+                    .foregroundStyle(NemrionTheme.textPrimary)
 
                 Text(subtitle)
                     .font(.system(size: NemrionScale.textXs, weight: .medium))
-                    .foregroundStyle(isPrimary ? Color.white.opacity(0.72) : NemrionTheme.textSecondary)
+                    .foregroundStyle(NemrionTheme.textSecondary)
             }
 
             Spacer()
@@ -175,25 +165,25 @@ struct MenuBarView: View {
             if showsArrow {
                 Image(systemName: "arrow.up.right")
                     .font(.system(size: NemrionScale.textXs, weight: .bold))
-                    .foregroundStyle(isPrimary ? Color.white.opacity(0.72) : NemrionTheme.textTertiary)
+                    .foregroundStyle(NemrionTheme.textTertiary)
             }
         }
         .padding(12)
         .frame(maxWidth: .infinity, minHeight: 60, alignment: .leading)
-        .nemrionSurface(tileKind(isPrimary: isPrimary, emphasized: emphasized))
+        .nemrionSurface(tileKind(emphasized: emphasized))
     }
 
-    private func actionIcon(symbol: String, strong: Bool, tint: Color? = nil) -> some View {
+    private func actionIcon(symbol: String, tint: Color? = nil) -> some View {
         SurfaceIconBadge(
             symbol: symbol,
-            tint: strong ? Color.white : (tint ?? NemrionTheme.textPrimary)
+            tint: tint ?? NemrionTheme.textSecondary
         )
         .frame(width: 28, height: 28)
     }
 
-    private func tileKind(isPrimary: Bool, emphasized: Bool) -> NemrionSurfaceKind {
-        if isPrimary || emphasized {
-            return .interactive
+    private func tileKind(emphasized: Bool) -> NemrionSurfaceKind {
+        if emphasized {
+            return .tileStrong
         }
         return .tile
     }
