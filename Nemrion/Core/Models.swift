@@ -4,6 +4,7 @@ import Foundation
 struct AppSettings: Equatable {
     var provider: ProviderKind = .ollama
     var modelName: String = ""
+    var isThinkingEnabled: Bool = false
     var hotKeyDisplay: String = "Shift-Command-Space"
 }
 
@@ -20,13 +21,6 @@ enum ProviderKind: String, CaseIterable, Identifiable {
     }
 }
 
-enum RewriteAction: String, CaseIterable, Identifiable {
-    case polish
-
-    var id: String { rawValue }
-    var title: String { "Polish" }
-}
-
 struct ProviderModel: Identifiable, Hashable {
     let id: String
     let title: String
@@ -35,8 +29,19 @@ struct ProviderModel: Identifiable, Hashable {
 struct GenerationRequest: Sendable {
     let sourceText: String
     let instruction: String
-    let action: RewriteAction
     let model: String
+    let isThinkingEnabled: Bool
+
+    var usesThinking: Bool {
+        isThinkingEnabled && Self.supportsThinking(model: model)
+    }
+
+    static func supportsThinking(model: String) -> Bool {
+        let normalizedModel = model.lowercased()
+        return normalizedModel.hasPrefix("gemma4")
+            || normalizedModel.hasPrefix("qwen3")
+            || normalizedModel.hasPrefix("deepseek-r1")
+    }
 }
 
 struct CapturedSelection: Sendable {

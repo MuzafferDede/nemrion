@@ -76,7 +76,7 @@ struct MenuBarView: View {
     private var actionsRow: some View {
         Button {
             dismiss()
-            Task { await app.triggerPolishFlow(source: .menuBar) }
+            Task { await app.triggerPolishFlow() }
         } label: {
             compactActionTile(
                 symbol: "nemrion.mark",
@@ -87,17 +87,6 @@ struct MenuBarView: View {
             )
         }
         .buttonStyle(.plain)
-    }
-
-    private var runtimeIcon: String {
-        switch app.dependencyStatus {
-        case .ready:
-            return "checkmark.circle.fill"
-        case .checking:
-            return "clock.fill"
-        case .ollamaMissing, .ollamaStopped, .unavailable:
-            return "bolt.slash.fill"
-        }
     }
 
     private var runtimeColor: Color {

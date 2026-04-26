@@ -37,7 +37,7 @@ final class AppContainer: ObservableObject {
         )
 
         bubbleController.onActivate = { [weak self] in
-            Task { await self?.triggerPolishFlow(source: .bubble) }
+            Task { await self?.triggerPolishFlow() }
         }
     }
 
@@ -45,7 +45,7 @@ final class AppContainer: ObservableObject {
         permissionMonitor.start()
         hotKeyManager.start {
             Task { @MainActor [weak self] in
-                await self?.triggerPolishFlow(source: .hotkey)
+                await self?.triggerPolishFlow()
             }
         }
 
@@ -73,9 +73,9 @@ final class AppContainer: ObservableObject {
         }
     }
 
-    func triggerPolishFlow(source: TriggerSource) async {
+    func triggerPolishFlow() async {
         await refreshProviderState()
-        await panelViewModel.runPolishFlow(trigger: source) { [weak self] in
+        await panelViewModel.runPolishFlow { [weak self] in
             self?.panelCoordinator.show()
         }
     }
@@ -146,10 +146,4 @@ final class AppContainer: ObservableObject {
     func requestAccessibilityPrompt() {
         permissionMonitor.requestAccessPrompt()
     }
-}
-
-enum TriggerSource: String {
-    case hotkey
-    case menuBar
-    case bubble
 }

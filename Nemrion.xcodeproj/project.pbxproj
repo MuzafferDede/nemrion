@@ -16,7 +16,6 @@
 		000000000000000000000107 /* RewritePanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000007 /* RewritePanelView.swift */; };
 		000000000000000000000108 /* SelectionBubbleController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000008 /* SelectionBubbleController.swift */; };
 		000000000000000000000109 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000009 /* SettingsView.swift */; };
-		00000000000000000000010A /* PermissionGuidanceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000000A /* PermissionGuidanceView.swift */; };
 		00000000000000000000010B /* PermissionMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000000B /* PermissionMonitor.swift */; };
 		00000000000000000000010C /* Provider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000000C /* Provider.swift */; };
 		00000000000000000000010D /* OllamaProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000000D /* OllamaProvider.swift */; };
@@ -47,7 +46,6 @@
 		000000000000000000000007 /* RewritePanelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewritePanelView.swift; sourceTree = "<group>"; };
 		000000000000000000000008 /* SelectionBubbleController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectionBubbleController.swift; sourceTree = "<group>"; };
 		000000000000000000000009 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
-		00000000000000000000000A /* PermissionGuidanceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionGuidanceView.swift; sourceTree = "<group>"; };
 		00000000000000000000000B /* PermissionMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionMonitor.swift; sourceTree = "<group>"; };
 		00000000000000000000000C /* Provider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Provider.swift; sourceTree = "<group>"; };
 		00000000000000000000000D /* OllamaProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OllamaProvider.swift; sourceTree = "<group>"; };
@@ -153,7 +151,6 @@
 			children = (
 				000000000000000000000620 /* Bubble */,
 				000000000000000000000621 /* MenuBar */,
-				000000000000000000000622 /* Onboarding */,
 				000000000000000000000623 /* Panel */,
 				000000000000000000000624 /* Settings */,
 			);
@@ -193,14 +190,6 @@
 				000000000000000000000005 /* MenuBarView.swift */,
 			);
 			path = MenuBar;
-			sourceTree = "<group>";
-		};
-		000000000000000000000622 /* Onboarding */ = {
-			isa = PBXGroup;
-			children = (
-				00000000000000000000000A /* PermissionGuidanceView.swift */,
-			);
-			path = Onboarding;
 			sourceTree = "<group>";
 		};
 		000000000000000000000623 /* Panel */ = {
@@ -362,7 +351,6 @@
 				000000000000000000000107 /* RewritePanelView.swift in Sources */,
 				000000000000000000000108 /* SelectionBubbleController.swift in Sources */,
 				000000000000000000000109 /* SettingsView.swift in Sources */,
-				00000000000000000000010A /* PermissionGuidanceView.swift in Sources */,
 				00000000000000000000010B /* PermissionMonitor.swift in Sources */,
 				00000000000000000000010C /* Provider.swift in Sources */,
 				00000000000000000000010D /* OllamaProvider.swift in Sources */,

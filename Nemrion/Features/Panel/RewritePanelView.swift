@@ -120,6 +120,9 @@ struct RewritePanelView: View {
     private var resultSurface: some View {
         VStack(alignment: .leading, spacing: NemrionScale.space2) {
             resultHeader
+            if viewModel.thinkingText.isEmpty == false {
+                thinkingTranscript
+            }
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 12) {
@@ -166,12 +169,54 @@ struct RewritePanelView: View {
                     ProgressView()
                         .controlSize(.small)
                         .tint(NemrionTheme.accent)
-                    Text("Streaming")
+                    Text(viewModel.isThinking ? "Thinking" : "Streaming")
                         .font(.system(size: NemrionScale.textSm, weight: .medium))
                         .foregroundStyle(NemrionTheme.textSecondary)
+                    Button {
+                        viewModel.stopGeneration()
+                    } label: {
+                        Label("Stop", systemImage: "stop.fill")
+                    }
+                    .buttonStyle(PanelButtonStyle(variant: .secondary, size: .compact))
+                    .help("Stop generation")
                 }
             }
         }
+    }
+
+    private var thinkingTranscript: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 8) {
+                Image(systemName: "brain.head.profile")
+                    .font(.system(size: NemrionScale.textXs, weight: .semibold))
+                    .foregroundStyle(NemrionTheme.accent)
+
+                Text(viewModel.isThinking ? "Thinking" : "Thoughts")
+                    .font(.system(size: NemrionScale.textSm, weight: .semibold))
+                    .foregroundStyle(NemrionTheme.textPrimary)
+
+                Spacer(minLength: 0)
+            }
+
+            ScrollView {
+                Text(viewModel.thinkingText.trimmingCharacters(in: .whitespacesAndNewlines))
+                    .font(.system(size: NemrionScale.textXs, weight: .medium, design: .monospaced))
+                    .lineSpacing(4)
+                    .foregroundStyle(NemrionTheme.textSecondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .textSelection(.enabled)
+                    .padding(.bottom, 2)
+            }
+            .frame(maxHeight: 110)
+        }
+        .padding(NemrionScale.space2)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color.black.opacity(0.10))
+        .overlay {
+            RoundedRectangle(cornerRadius: NemrionScale.radius, style: .continuous)
+                .stroke(NemrionTheme.border.opacity(0.5), lineWidth: 1)
+        }
+        .clipShape(RoundedRectangle(cornerRadius: NemrionScale.radius, style: .continuous))
     }
 
     @ViewBuilder
@@ -233,7 +278,7 @@ struct RewritePanelView: View {
         case .capturing:
             return "Capturing the active selection."
         case .generating:
-            return "Generating a rewritten version."
+            return viewModel.isThinking ? "Thinking before writing." : "Generating a rewritten version."
         case .ready:
             return "Adjust the prompt if needed, then apply the result."
         case .failure:
@@ -257,7 +302,7 @@ struct RewritePanelView: View {
         case .capturing:
             return "CAPTURING"
         case .generating:
-            return "STREAMING"
+            return viewModel.isThinking ? "THINKING" : "STREAMING"
         case .ready:
             return "READY"
         case .idle:
@@ -284,6 +329,13 @@ struct RewritePanelView: View {
 
     private var streamingPlaceholder: some View {
         VStack(alignment: .leading, spacing: 12) {
+            if viewModel.isThinking {
+                Label("Thinking", systemImage: "brain.head.profile")
+                    .font(.system(size: NemrionScale.textSm, weight: .semibold))
+                    .foregroundStyle(NemrionTheme.textSecondary)
+                    .padding(.bottom, 2)
+            }
+
             ForEach(0..<7, id: \.self) { index in
                 RoundedRectangle(cornerRadius: NemrionScale.radius, style: .continuous)
                     .fill(Color.white.opacity(0.10 - (Double(index) * 0.008)))

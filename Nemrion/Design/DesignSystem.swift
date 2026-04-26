@@ -15,7 +15,6 @@ enum NemrionTheme {
     static let accentMuted = Color(red: 0.118, green: 0.494, blue: 0.361)
     static let brandMarkPrimary = Color(red: 0.898, green: 0.416, blue: 0.180)
     static let brandMarkSecondary = Color.white.opacity(0.74)
-    static let blueStrong = Color(red: 0.231, green: 0.310, blue: 0.455)
     static let inkOnAccent = Color.black.opacity(0.84)
     static let success = accent
     static let warning = accent
@@ -102,7 +101,6 @@ extension View {
 enum PanelButtonVariant {
     case primary
     case secondary
-    case quiet
 }
 
 enum PanelButtonSize {
@@ -148,8 +146,6 @@ struct PanelButtonStyle: ButtonStyle {
                     ? NemrionTheme.surfaceStrong.opacity(0.98)
                     : NemrionTheme.surface.opacity(0.98)
                 )
-        case .quiet:
-            NemrionTheme.surface.opacity(configuration.isPressed ? 0.65 : 0.35)
         }
     }
 
@@ -159,8 +155,6 @@ struct PanelButtonStyle: ButtonStyle {
             return NemrionTheme.accentMuted.opacity(configuration.isPressed ? 0.42 : 0.68)
         case .secondary:
             return NemrionTheme.borderStrong.opacity(configuration.isPressed ? 0.38 : 0.56)
-        case .quiet:
-            return NemrionTheme.border.opacity(0.45)
         }
     }
 
@@ -169,8 +163,6 @@ struct PanelButtonStyle: ButtonStyle {
         case .primary:
             return NemrionTheme.textPrimary
         case .secondary:
-            return NemrionTheme.textPrimary
-        case .quiet:
             return NemrionTheme.textPrimary
         }
     }
@@ -191,17 +183,6 @@ struct PanelButtonStyle: ButtonStyle {
         case .compact:
             return 0
         }
-    }
-}
-
-struct EyebrowLabel: View {
-    let text: String
-
-    var body: some View {
-        Text(text.uppercased())
-            .font(.system(size: NemrionScale.textXs, weight: .bold, design: .rounded))
-            .tracking(1.3)
-            .foregroundStyle(NemrionTheme.textTertiary)
     }
 }
 

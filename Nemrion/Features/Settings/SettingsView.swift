@@ -56,6 +56,9 @@ struct SettingsView: View {
                 }
 
                 modelSelector
+                if selectedModelSupportsThinking {
+                    thinkingToggle
+                }
 
                 HotkeyValueField(hotKey: app.settings.hotKeyDisplay)
             }
@@ -164,11 +167,49 @@ struct SettingsView: View {
         }
     }
 
+    private var thinkingToggle: some View {
+        HStack(alignment: .top, spacing: NemrionScale.space2) {
+            SurfaceIconBadge(
+                symbol: "brain.head.profile",
+                tint: app.settings.isThinkingEnabled ? NemrionTheme.accent : NemrionTheme.textSecondary
+            )
+
+            VStack(alignment: .leading, spacing: 6) {
+                Text("THINKING")
+                    .font(.system(size: NemrionScale.textXs, weight: .bold))
+                    .tracking(1)
+                    .foregroundStyle(NemrionTheme.textTertiary)
+
+                Text("Reasoning")
+                    .font(.system(size: NemrionScale.textMd, weight: .semibold))
+                    .foregroundStyle(NemrionTheme.textPrimary)
+
+                Text(app.settings.isThinkingEnabled ? "Enabled for supported models" : "Disabled for faster rewrites")
+                    .font(.system(size: NemrionScale.textSm, weight: .medium))
+                    .foregroundStyle(NemrionTheme.textSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            Spacer(minLength: 0)
+
+            Toggle("", isOn: $app.settings.isThinkingEnabled)
+                .toggleStyle(.switch)
+                .labelsHidden()
+                .help(app.settings.isThinkingEnabled ? "Disable thinking" : "Enable thinking")
+        }
+        .padding(NemrionScale.space3)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .nemrionSurface(.tile)
+    }
+
     private var modelPickerPopover: some View {
         VStack(spacing: 0) {
             ForEach(app.availableModels) { model in
                 Button {
                     app.settings.modelName = model.id
+                    if GenerationRequest.supportsThinking(model: model.id) == false {
+                        app.settings.isThinkingEnabled = false
+                    }
                     isModelPickerPresented = false
                 } label: {
                     HStack(spacing: NemrionScale.space2) {
@@ -227,6 +268,10 @@ struct SettingsView: View {
                 : "Selected model will refresh when Ollama is available"
         }
         return "Local model"
+    }
+
+    private var selectedModelSupportsThinking: Bool {
+        GenerationRequest.supportsThinking(model: app.settings.modelName)
     }
 
     private var runtimeActionDisabled: Bool {
@@ -340,22 +385,6 @@ struct SettingsView: View {
         }
         .padding(NemrionScale.space3)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .nemrionSurface(.tileStrong)
-    }
-
-    private func statusPill(title: String, value: String, tint: Color) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(title.uppercased())
-                .font(.system(size: NemrionScale.textXs, weight: .bold))
-                .tracking(1)
-                .foregroundStyle(NemrionTheme.textTertiary)
-
-            Text(value)
-                .font(.system(size: NemrionScale.textSm, weight: .semibold))
-                .foregroundStyle(tint)
-        }
-        .padding(.horizontal, NemrionScale.space3)
-        .padding(.vertical, NemrionScale.space2)
         .nemrionSurface(.tileStrong)
     }
 

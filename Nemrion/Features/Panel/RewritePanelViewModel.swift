@@ -8,9 +8,10 @@ final class RewritePanelViewModel: ObservableObject {
     @Published var sourceText = ""
     @Published var outputText = ""
     @Published var instruction = ""
-    @Published var lastError = ""
     @Published var sourceAppName = "Current App"
     @Published var isApplying = false
+    @Published var isThinking = false
+    @Published var thinkingText = ""
 
     private var capturedSelection: CapturedSelection?
     private let pasteboard = NSPasteboard.general
@@ -20,6 +21,7 @@ final class RewritePanelViewModel: ObservableObject {
     private var provider: AIProvider?
     private var settingsSource: (() -> AppSettings)?
     private var dependencySource: (() -> DependencyStatus)?
+    private var shouldStopGeneration = false
 
     func configure(
         selectionService: SelectionService,
@@ -35,7 +37,7 @@ final class RewritePanelViewModel: ObservableObject {
         self.dependencySource = dependencySource
     }
 
-    func runPolishFlow(trigger: TriggerSource, revealPanel: @escaping @MainActor () -> Void) async {
+    func runPolishFlow(revealPanel: @escaping @MainActor () -> Void) async {
         var hasRevealedPanel = false
 
         func revealIfNeeded() {
@@ -60,7 +62,6 @@ final class RewritePanelViewModel: ObservableObject {
 
         phase = .capturing
         outputText = ""
-        lastError = ""
 
         do {
             guard let selectionService else { return }
@@ -81,6 +82,8 @@ final class RewritePanelViewModel: ObservableObject {
         guard sourceText.isEmpty == false else { return }
         phase = .generating
         outputText = ""
+        thinkingText = ""
+        shouldStopGeneration = false
 
         do {
             try await generate()
@@ -105,6 +108,8 @@ final class RewritePanelViewModel: ObservableObject {
 
         phase = .generating
         outputText = ""
+        thinkingText = ""
+        shouldStopGeneration = false
         instruction = ""
 
         do {
@@ -124,10 +129,19 @@ final class RewritePanelViewModel: ObservableObject {
         sourceText = ""
         outputText = ""
         instruction = ""
-        lastError = ""
         sourceAppName = "Current App"
         isApplying = false
+        isThinking = false
+        thinkingText = ""
         capturedSelection = nil
+        shouldStopGeneration = false
+    }
+
+    func stopGeneration() {
+        guard phase == .generating else { return }
+        shouldStopGeneration = true
+        isThinking = false
+        phase = outputText.isEmpty ? .idle : .ready
     }
 
     func applyOutput() async {
@@ -148,18 +162,40 @@ final class RewritePanelViewModel: ObservableObject {
 
     private func generate(instructionOverride: String? = nil) async throws {
         guard let provider, let settings = settingsSource?() else { return }
+        isThinking = false
+        defer { isThinking = false }
+        thinkingText = ""
+        shouldStopGeneration = false
 
         let request = GenerationRequest(
             sourceText: sourceText,
             instruction: instructionOverride ?? instruction,
-            action: .polish,
-            model: settings.modelName
+            model: settings.modelName,
+            isThinkingEnabled: settings.isThinkingEnabled
         )
 
-        for try await chunk in provider.streamRewrite(request: request) {
-            outputText.append(chunk)
+        for try await event in provider.streamRewrite(request: request) {
+            if shouldStopGeneration {
+                break
+            }
+            switch event {
+            case let .content(chunk):
+                isThinking = false
+                outputText.append(chunk)
+            case let .thinking(chunk):
+                isThinking = true
+                thinkingText.append(chunk)
+            case .thinkingEnded:
+                isThinking = false
+            }
         }
-
+        if shouldStopGeneration {
+            shouldStopGeneration = false
+            if outputText.isEmpty == false {
+                phase = .ready
+            }
+            return
+        }
         if outputText.isEmpty {
             throw NemrionError.malformedResponse
         }
