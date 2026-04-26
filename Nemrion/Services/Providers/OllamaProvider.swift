@@ -106,6 +106,7 @@ private struct GenerateRequest: Encodable {
     let model: String
     let prompt: String
     let stream: Bool
+    let think: Bool = false
     let options: GenerateOptions
 }
 

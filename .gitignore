@@ -1,11 +1,11 @@
 .DS_Store
 
 # Xcode user-specific state
-xcuserdata/
+**/xcuserdata/
 *.xcuserstate
 
 # Local build products
-build/
+/build/
 DerivedData/
 
 # Swift Package Manager
