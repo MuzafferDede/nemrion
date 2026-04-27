@@ -6,7 +6,7 @@ import SwiftUI
 final class AppContainer: ObservableObject {
     static let shared = AppContainer()
 
-    @Published var settings = AppSettings()
+    @Published var settings = AppContainer.loadSettings()
     @Published var dependencyStatus: DependencyStatus = .checking
     @Published var availableModels: [ProviderModel] = []
 
@@ -40,6 +40,14 @@ final class AppContainer: ObservableObject {
         bubbleController.onActivate = { [weak self] in
             Task { await self?.triggerPolishFlow() }
         }
+
+        $settings
+            .removeDuplicates()
+            .dropFirst()
+            .sink { settings in
+                Self.saveSettings(settings)
+            }
+            .store(in: &cancellables)
     }
 
     func start() {
@@ -70,7 +78,7 @@ final class AppContainer: ObservableObject {
         }
 
         Task {
-            await refreshProviderState()
+            await refreshProviderState(prewarm: true)
             startOllamaOnLaunchIfNeeded()
         }
     }
@@ -88,7 +96,7 @@ final class AppContainer: ObservableObject {
     }
 
     func openSettingsWindow() {
-        Task { await refreshProviderState() }
+        Task { await refreshProviderState(prewarm: true) }
         settingsCoordinator.show()
     }
 
@@ -96,7 +104,7 @@ final class AppContainer: ObservableObject {
         settingsCoordinator.hide()
     }
 
-    func refreshProviderState() async {
+    func refreshProviderState(prewarm: Bool = false) async {
         dependencyStatus = await provider.healthCheck()
         guard case .ready = dependencyStatus else {
             availableModels = []
@@ -113,6 +121,11 @@ final class AppContainer: ObservableObject {
             availableModels = models
             if settings.modelName.isEmpty || models.contains(where: { $0.id == settings.modelName }) == false {
                 settings.modelName = models.first?.id ?? "llama3.1"
+            }
+            if prewarm, settings.modelName.isEmpty == false {
+                dependencyStatus = .warmingModel
+                await provider.prewarm(model: settings.modelName)
+                dependencyStatus = await provider.healthCheck()
             }
         } catch {
             dependencyStatus = .unavailable(error.localizedDescription)
@@ -145,7 +158,7 @@ final class AppContainer: ObservableObject {
             guard let self else { return }
             Task { @MainActor in
                 try? await Task.sleep(for: .seconds(1.5))
-                await self.refreshProviderState()
+                await self.refreshProviderState(prewarm: true)
             }
         }
     }
@@ -160,5 +173,22 @@ final class AppContainer: ObservableObject {
 
     func requestAccessibilityPrompt() {
         permissionMonitor.requestAccessPrompt()
+    }
+
+    private static let settingsKey = "Nemrion.AppSettings"
+
+    private static func loadSettings() -> AppSettings {
+        guard
+            let data = UserDefaults.standard.data(forKey: settingsKey),
+            let settings = try? JSONDecoder().decode(AppSettings.self, from: data)
+        else {
+            return AppSettings()
+        }
+        return settings
+    }
+
+    private static func saveSettings(_ settings: AppSettings) {
+        guard let data = try? JSONEncoder().encode(settings) else { return }
+        UserDefaults.standard.set(data, forKey: settingsKey)
     }
 }

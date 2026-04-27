@@ -174,6 +174,25 @@ final class RewritePanelViewModel: ObservableObject {
             isThinkingEnabled: settings.isThinkingEnabled
         )
 
+        var outputBuffer = ""
+        var thinkingBuffer = ""
+        var lastFlush = Date()
+
+        func flushBufferedText(force: Bool = false) {
+            let now = Date()
+            guard force || now.timeIntervalSince(lastFlush) >= 0.04 else { return }
+
+            if outputBuffer.isEmpty == false {
+                outputText.append(outputBuffer)
+                outputBuffer = ""
+            }
+            if thinkingBuffer.isEmpty == false {
+                thinkingText.append(thinkingBuffer)
+                thinkingBuffer = ""
+            }
+            lastFlush = now
+        }
+
         for try await event in provider.streamRewrite(request: request) {
             if shouldStopGeneration {
                 break
@@ -181,14 +200,17 @@ final class RewritePanelViewModel: ObservableObject {
             switch event {
             case let .content(chunk):
                 isThinking = false
-                outputText.append(chunk)
+                outputBuffer.append(chunk)
             case let .thinking(chunk):
                 isThinking = true
-                thinkingText.append(chunk)
+                thinkingBuffer.append(chunk)
             case .thinkingEnded:
+                flushBufferedText(force: true)
                 isThinking = false
             }
+            flushBufferedText()
         }
+        flushBufferedText(force: true)
         if shouldStopGeneration {
             shouldStopGeneration = false
             if outputText.isEmpty == false {

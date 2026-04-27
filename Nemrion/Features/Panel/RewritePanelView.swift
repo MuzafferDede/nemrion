@@ -74,6 +74,7 @@ struct RewritePanelView: View {
                         .frame(width: 30, height: 30)
                 }
                 .buttonStyle(PanelButtonStyle(variant: .secondary, size: .compact))
+                .keyboardShortcut(.cancelAction)
                 .help("Close")
             }
         }
@@ -108,6 +109,7 @@ struct RewritePanelView: View {
                     .nemrionSurface(.interactive)
             }
             .buttonStyle(.plain)
+            .keyboardShortcut(.return, modifiers: .command)
             .disabled(viewModel.sourceText.isEmpty || viewModel.instruction.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || app.dependencyStatus != .ready)
             .opacity(viewModel.sourceText.isEmpty || viewModel.instruction.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || app.dependencyStatus != .ready ? 0.5 : 1)
             .help("Send prompt")
@@ -124,27 +126,43 @@ struct RewritePanelView: View {
                 thinkingTranscript
             }
 
-            ScrollView {
-                VStack(alignment: .leading, spacing: 12) {
-                    if viewModel.outputText.isEmpty, viewModel.phase == .generating {
-                        streamingPlaceholder
-                    } else if viewModel.phase == .generating {
-                        StreamingResultText(text: viewModel.outputText, color: outputColor)
-                            .font(.system(size: NemrionScale.textMd, weight: .medium))
-                            .lineSpacing(5)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .textSelection(.enabled)
-                    } else {
-                        Text(outputBody)
-                            .font(.system(size: NemrionScale.textMd, weight: .medium))
-                            .lineSpacing(5)
-                            .foregroundStyle(outputColor)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .textSelection(.enabled)
+            ScrollViewReader { proxy in
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 12) {
+                        if viewModel.outputText.isEmpty, viewModel.phase == .generating {
+                            streamingPlaceholder
+                        } else if viewModel.phase == .generating {
+                            StreamingResultText(text: viewModel.outputText, color: outputColor)
+                                .font(.system(size: NemrionScale.textMd, weight: .medium))
+                                .lineSpacing(5)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .textSelection(.enabled)
+                        } else {
+                            Text(outputBody)
+                                .font(.system(size: NemrionScale.textMd, weight: .medium))
+                                .lineSpacing(5)
+                                .foregroundStyle(outputColor)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .textSelection(.enabled)
+                        }
+
+                        Color.clear
+                            .frame(height: 1)
+                            .id("result-bottom")
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(NemrionScale.space3)
+                }
+                .onChange(of: viewModel.outputText) { _, _ in
+                    guard viewModel.phase == .generating else { return }
+                    withAnimation(.easeOut(duration: 0.16)) {
+                        proxy.scrollTo("result-bottom", anchor: .bottom)
                     }
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(NemrionScale.space3)
+                .onChange(of: viewModel.phase) { _, phase in
+                    guard phase == .generating else { return }
+                    proxy.scrollTo("result-bottom", anchor: .bottom)
+                }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color.black.opacity(0.12))
@@ -184,6 +202,7 @@ struct RewritePanelView: View {
                         Label("Stop", systemImage: "stop.fill")
                     }
                     .buttonStyle(PanelButtonStyle(variant: .secondary, size: .compact))
+                    .keyboardShortcut(".", modifiers: .command)
                     .help("Stop generation")
                 }
             }
@@ -262,6 +281,24 @@ struct RewritePanelView: View {
             Spacer()
 
             Button {
+                Task { await viewModel.retry() }
+            } label: {
+                Label("Retry", systemImage: "arrow.clockwise")
+            }
+            .buttonStyle(PanelButtonStyle(variant: .secondary))
+            .keyboardShortcut("r", modifiers: .command)
+            .disabled(viewModel.sourceText.isEmpty || viewModel.phase == .generating || app.dependencyStatus != .ready)
+
+            Button {
+                viewModel.copyOutput()
+            } label: {
+                Label("Copy", systemImage: "doc.on.doc")
+            }
+            .buttonStyle(PanelButtonStyle(variant: .secondary))
+            .keyboardShortcut("c", modifiers: .command)
+            .disabled(viewModel.outputText.isEmpty)
+
+            Button {
                 Task {
                     await viewModel.applyOutput()
                     if case .failure = viewModel.phase {
@@ -273,7 +310,8 @@ struct RewritePanelView: View {
                 Label(viewModel.isApplying ? "Applying..." : "Apply", systemImage: "checkmark")
             }
             .buttonStyle(PanelButtonStyle(variant: .primary))
-            .disabled(viewModel.outputText.isEmpty || viewModel.isApplying)
+            .keyboardShortcut(.return, modifiers: .command)
+            .disabled(viewModel.outputText.isEmpty || viewModel.isApplying || viewModel.phase == .generating)
         }
     }
 

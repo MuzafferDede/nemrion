@@ -1,14 +1,14 @@
 import AppKit
 import Foundation
 
-struct AppSettings: Equatable {
+struct AppSettings: Codable, Equatable {
     var provider: ProviderKind = .ollama
     var modelName: String = ""
     var isThinkingEnabled: Bool = false
     var hotKeyDisplay: String = "Shift-Command-Space"
 }
 
-enum ProviderKind: String, CaseIterable, Identifiable {
+enum ProviderKind: String, CaseIterable, Identifiable, Codable {
     case ollama
 
     var id: String { rawValue }
@@ -53,6 +53,7 @@ struct CapturedSelection: Sendable {
 
 enum DependencyStatus: Equatable {
     case checking
+    case warmingModel
     case ready
     case ollamaMissing
     case ollamaStopped
@@ -62,6 +63,8 @@ enum DependencyStatus: Equatable {
         switch self {
         case .checking:
             return "Checking local model runtime"
+        case .warmingModel:
+            return "Loading selected model"
         case .ready:
             return "Ollama Ready"
         case .ollamaMissing:

@@ -95,7 +95,7 @@ struct MenuBarView: View {
 
     private var runtimeActionDisabled: Bool {
         switch app.dependencyStatus {
-        case .ready, .checking:
+        case .ready, .checking, .warmingModel:
             return true
         case .ollamaStopped:
             return false
@@ -113,7 +113,7 @@ struct MenuBarView: View {
         switch app.dependencyStatus {
         case .ready:
             return "checkmark.circle.fill"
-        case .checking:
+        case .checking, .warmingModel:
             return "clock.fill"
         case .ollamaMissing, .ollamaStopped, .unavailable:
             return "bolt.fill"

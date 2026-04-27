@@ -3,22 +3,16 @@ import Foundation
 struct OllamaProvider: AIProvider {
     private let session: URLSession = .shared
     private let baseURL = URL(string: "http://127.0.0.1:11434")!
+    private static let installPaths = [
+        "/Applications/Ollama.app",
+        "\(NSHomeDirectory())/Applications/Ollama.app"
+    ]
 
     func healthCheck() async -> DependencyStatus {
-        let fileManager = FileManager.default
-        let installPaths = [
-            "/Applications/Ollama.app",
-            "\(NSHomeDirectory())/Applications/Ollama.app"
-        ]
-
-        let isInstalled = installPaths.contains(where: { fileManager.fileExists(atPath: $0) })
         guard isInstalled else { return .ollamaMissing }
 
-        var request = URLRequest(url: baseURL.appending(path: "/api/tags"))
-        request.timeoutInterval = 2
-
         do {
-            let (_, response) = try await session.data(for: request)
+            let (_, response) = try await session.data(for: makeRequest(path: "/api/tags", timeout: 2))
             if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 {
                 return .ready
             }
@@ -29,34 +23,38 @@ struct OllamaProvider: AIProvider {
     }
 
     func availableModels() async throws -> [ProviderModel] {
-        let (data, _) = try await session.data(from: baseURL.appending(path: "/api/tags"))
+        let (data, _) = try await session.data(for: makeRequest(path: "/api/tags"))
         let response = try JSONDecoder().decode(TagListResponse.self, from: data)
         return response.models.map { ProviderModel(id: $0.name, title: $0.name) }
+    }
+
+    func prewarm(model: String) async {
+        guard model.isEmpty == false else { return }
+
+        do {
+            let request = try makeJSONRequest(
+                path: "/api/generate",
+                timeout: 20,
+                body: PrewarmRequest(
+                    model: model,
+                    prompt: " ",
+                    stream: false,
+                    keepAlive: "10m",
+                    options: PrewarmOptions()
+                )
+            )
+
+            _ = try await session.data(for: request)
+        } catch {
+            // Prewarming is best effort; normal generation still surfaces provider errors.
+        }
     }
 
     func streamRewrite(request: GenerationRequest) -> AsyncThrowingStream<GenerationStreamEvent, Error> {
         AsyncThrowingStream { continuation in
             let task = Task {
                 do {
-                    var urlRequest = URLRequest(url: baseURL.appending(path: "/api/chat"))
-                    urlRequest.httpMethod = "POST"
-                    urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
-
-                    let body = ChatRequest(
-                        model: request.model,
-                        messages: PromptBuilder.polishMessages(
-                            source: request.sourceText,
-                            instruction: request.instruction,
-                            model: request.model,
-                            isThinkingEnabled: request.usesThinking
-                        ),
-                        stream: true,
-                        think: request.usesThinking,
-                        options: GenerateOptions(temperature: 0.25)
-                    )
-
-                    urlRequest.httpBody = try JSONEncoder().encode(body)
-
+                    let urlRequest = try makeJSONRequest(path: "/api/chat", body: makeChatRequest(for: request))
                     let (bytes, response) = try await session.bytes(for: urlRequest)
                     if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 200 {
                         var errorText = ""
@@ -68,16 +66,7 @@ struct OllamaProvider: AIProvider {
                         )
                     }
 
-                    var isThinking = false
-                    var inlineParser = InlineThinkingStreamParser()
-                    var didEmitContent = false
-
-                    func yield(_ event: GenerationStreamEvent) {
-                        if case .content = event {
-                            didEmitContent = true
-                        }
-                        continuation.yield(event)
-                    }
+                    var stream = OllamaStreamAccumulator()
 
                     for try await line in bytes.lines {
                         guard line.isEmpty == false else { continue }
@@ -85,31 +74,15 @@ struct OllamaProvider: AIProvider {
                         let chunk = try JSONDecoder().decode(ChatChunk.self, from: data)
                         if chunk.done { break }
 
-                        if let thinking = chunk.message?.thinking, thinking.isEmpty == false {
-                            if isThinking == false {
-                                isThinking = true
-                            }
-                            yield(.thinking(thinking))
-                            continue
-                        }
-
-                        guard let content = chunk.message?.content, content.isEmpty == false else { continue }
-                        if isThinking {
-                            isThinking = false
-                            yield(.thinkingEnded)
-                        }
-                        for event in inlineParser.consume(content) {
-                            yield(event)
+                        for event in stream.events(from: chunk) {
+                            continuation.yield(event)
                         }
                     }
 
-                    if isThinking {
-                        yield(.thinkingEnded)
+                    for event in stream.finish() {
+                        continuation.yield(event)
                     }
-                    for event in inlineParser.finish() {
-                        yield(event)
-                    }
-                    guard didEmitContent else { throw NemrionError.malformedResponse }
+                    guard stream.didEmitContent else { throw NemrionError.malformedResponse }
                     continuation.finish()
                 } catch {
                     continuation.finish(throwing: error)
@@ -121,9 +94,92 @@ struct OllamaProvider: AIProvider {
             }
         }
     }
+
+    private var isInstalled: Bool {
+        let fileManager = FileManager.default
+        return Self.installPaths.contains { fileManager.fileExists(atPath: $0) }
+    }
+
+    private func makeRequest(path: String, method: String = "GET", timeout: TimeInterval? = nil) -> URLRequest {
+        var request = URLRequest(url: baseURL.appending(path: path))
+        request.httpMethod = method
+        if let timeout {
+            request.timeoutInterval = timeout
+        }
+        return request
+    }
+
+    private func makeJSONRequest<T: Encodable>(
+        path: String,
+        timeout: TimeInterval? = nil,
+        body: T
+    ) throws -> URLRequest {
+        var request = makeRequest(path: path, method: "POST", timeout: timeout)
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try JSONEncoder().encode(body)
+        return request
+    }
+
+    private func makeChatRequest(for request: GenerationRequest) -> ChatRequest {
+        ChatRequest(
+            model: request.model,
+            messages: PromptBuilder.polishMessages(
+                source: request.sourceText,
+                instruction: request.instruction,
+                model: request.model,
+                isThinkingEnabled: request.usesThinking
+            ),
+            stream: true,
+            think: request.usesThinking,
+            options: GenerateOptions(temperature: 0.25)
+        )
+    }
 }
 
-private struct InlineThinkingStreamParser {
+private struct OllamaStreamAccumulator {
+    private(set) var didEmitContent = false
+    private var isThinking = false
+    private var inlineParser = InlineThinkingStreamParser()
+
+    mutating func events(from chunk: ChatChunk) -> [GenerationStreamEvent] {
+        if let thinking = chunk.message?.thinking, thinking.isEmpty == false {
+            isThinking = true
+            return [.thinking(thinking)]
+        }
+
+        guard let content = chunk.message?.content, content.isEmpty == false else { return [] }
+
+        var events: [GenerationStreamEvent] = []
+        if isThinking {
+            isThinking = false
+            events.append(.thinkingEnded)
+        }
+        events.append(contentsOf: inlineParser.consume(content))
+        return recordContent(in: events)
+    }
+
+    mutating func finish() -> [GenerationStreamEvent] {
+        var events: [GenerationStreamEvent] = []
+        if isThinking {
+            isThinking = false
+            events.append(.thinkingEnded)
+        }
+        events.append(contentsOf: inlineParser.finish())
+        return recordContent(in: events)
+    }
+
+    private mutating func recordContent(in events: [GenerationStreamEvent]) -> [GenerationStreamEvent] {
+        if events.contains(where: {
+            if case .content = $0 { return true }
+            return false
+        }) {
+            didEmitContent = true
+        }
+        return events
+    }
+}
+
+struct InlineThinkingStreamParser {
     private var pending = ""
     private var isThinking = false
 
@@ -134,16 +190,16 @@ private struct InlineThinkingStreamParser {
 
         while text.isEmpty == false {
             if isThinking {
-                if let match = firstMatch(in: text, tokens: Self.thinkingEndTokens) {
-                    let thinking = String(text[..<match.range.lowerBound])
+                if let range = firstMatch(in: text, tokens: Self.thinkingEndTokens) {
+                    let thinking = String(text[..<range.lowerBound])
                     if thinking.isEmpty == false {
                         events.append(.thinking(thinking))
                     }
                     events.append(.thinkingEnded)
                     isThinking = false
-                    text = String(text[match.range.upperBound...])
+                    text = String(text[range.upperBound...])
                 } else {
-                    let split = splitTrailingPossibleTokenPrefix(text, tokens: Self.thinkingEndTokens)
+                    let split = splitForPossibleToken(text, tokens: Self.thinkingEndTokens)
                     if split.emit.isEmpty == false {
                         events.append(.thinking(split.emit))
                     }
@@ -151,15 +207,15 @@ private struct InlineThinkingStreamParser {
                     break
                 }
             } else {
-                if let match = firstMatch(in: text, tokens: Self.thinkingStartTokens) {
-                    let visible = String(text[..<match.range.lowerBound])
+                if let range = firstMatch(in: text, tokens: Self.thinkingStartTokens) {
+                    let visible = String(text[..<range.lowerBound])
                     if visible.isEmpty == false {
                         events.append(.content(visible))
                     }
                     isThinking = true
-                    text = String(text[match.range.upperBound...])
+                    text = String(text[range.upperBound...])
                 } else {
-                    let split = splitTrailingPossibleTokenPrefix(text, tokens: Self.thinkingStartTokens)
+                    let split = splitForPossibleToken(text, tokens: Self.thinkingStartTokens)
                     if split.emit.isEmpty == false {
                         events.append(.content(split.emit))
                     }
@@ -191,17 +247,17 @@ private struct InlineThinkingStreamParser {
     private static let thinkingStartTokens = ["<think>", "<|channel>thought"]
     private static let thinkingEndTokens = ["</think>", "<channel|>"]
 
-    private func firstMatch(in text: String, tokens: [String]) -> (range: Range<String.Index>, token: String)? {
+    private func firstMatch(in text: String, tokens: [String]) -> Range<String.Index>? {
         tokens
             .compactMap { token in
-                text.range(of: token, options: .caseInsensitive).map { (range: $0, token: token) }
+                text.range(of: token, options: .caseInsensitive)
             }
             .min { lhs, rhs in
-                lhs.range.lowerBound < rhs.range.lowerBound
+                lhs.lowerBound < rhs.lowerBound
             }
     }
 
-    private func splitTrailingPossibleTokenPrefix(
+    private func splitForPossibleToken(
         _ text: String,
         tokens: [String]
     ) -> (emit: String, pending: String) {
@@ -269,17 +325,35 @@ enum PromptBuilder {
     }
 
     private static let polishSystemInstruction = """
-    Rewrite the user's text so it sounds natural, clear, and polished.
+    You rewrite selected text for direct replacement in the user's document.
+
+    Task:
+    Make the selected text natural, clear, and polished.
     Preserve the original meaning.
     Repair likely intended wording when the sentence is awkward or broken.
     Do not add facts.
-    Return only the rewritten text.
+
+    Response format:
+    Return exactly the text that should replace the selection.
+    The response must be usable if pasted over the selected text with no editing.
+    Do not include any surrounding metadata, commentary, formatting, markup, or restatement of the source.
     """
 
     private static func polishUserMessage(source: String, instruction: String) -> String {
-        var message = "User text:\n\(source)"
+        var message = """
+        Rewrite the content inside <source_text>. Return only replacement text.
+
+        <source_text>
+        \(source)
+        </source_text>
+        """
         if instruction.isEmpty == false {
-            message += "\n\nAdditional instruction:\n\(instruction)"
+            message += """
+
+            <rewrite_instruction>
+            \(instruction)
+            </rewrite_instruction>
+            """
         }
         return message
     }
@@ -290,6 +364,30 @@ private struct TagListResponse: Decodable {
 
     struct Tag: Decodable {
         let name: String
+    }
+}
+
+private struct PrewarmRequest: Encodable {
+    let model: String
+    let prompt: String
+    let stream: Bool
+    let keepAlive: String
+    let options: PrewarmOptions
+
+    enum CodingKeys: String, CodingKey {
+        case model
+        case prompt
+        case stream
+        case keepAlive = "keep_alive"
+        case options
+    }
+}
+
+private struct PrewarmOptions: Encodable {
+    let numPredict: Int = 1
+
+    enum CodingKeys: String, CodingKey {
+        case numPredict = "num_predict"
     }
 }
 
@@ -323,7 +421,6 @@ private struct ChatRequest: Encodable {
 private struct GenerateOptions: Encodable {
     let temperature: Double
     let num_predict: Int = 512
-    let stop: [String] = ["\n\nUser text:"]
 }
 
 private struct ChatChunk: Decodable {

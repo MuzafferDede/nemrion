@@ -211,6 +211,7 @@ struct SettingsView: View {
                         app.settings.isThinkingEnabled = false
                     }
                     isModelPickerPresented = false
+                    Task { await app.refreshProviderState(prewarm: true) }
                 } label: {
                     HStack(spacing: NemrionScale.space2) {
                         VStack(alignment: .leading, spacing: 4) {
@@ -218,7 +219,7 @@ struct SettingsView: View {
                                 .font(.system(size: NemrionScale.textSm, weight: .semibold))
                                 .foregroundStyle(model.id == app.settings.modelName ? NemrionTheme.inkOnAccent : NemrionTheme.textPrimary)
 
-                            Text(model.id == app.settings.modelName ? "Selected model" : "Available local model")
+                            Text(modelPickerDetail(for: model))
                                 .font(.system(size: NemrionScale.textXs, weight: .medium))
                                 .foregroundStyle(model.id == app.settings.modelName ? NemrionTheme.textPrimary : NemrionTheme.textSecondary)
                         }
@@ -267,7 +268,7 @@ struct SettingsView: View {
                 ? "No local models available in Ollama yet"
                 : "Selected model will refresh when Ollama is available"
         }
-        return "Local model"
+        return selectedModelSupportsThinking ? "Local model with thinking support" : "Local model"
     }
 
     private var selectedModelSupportsThinking: Bool {
@@ -276,7 +277,7 @@ struct SettingsView: View {
 
     private var runtimeActionDisabled: Bool {
         switch app.dependencyStatus {
-        case .ready, .checking:
+        case .ready, .checking, .warmingModel:
             return true
         case .ollamaStopped:
             return false
@@ -411,7 +412,7 @@ struct SettingsView: View {
         switch app.dependencyStatus {
         case .ready:
             return "checkmark.circle.fill"
-        case .checking:
+        case .checking, .warmingModel:
             return "clock.fill"
         case .ollamaMissing, .ollamaStopped, .unavailable:
             return "bolt.slash.fill"
@@ -420,6 +421,13 @@ struct SettingsView: View {
 
     private var runtimeColor: Color {
         app.dependencyStatus == .ready ? NemrionTheme.success : NemrionTheme.textSecondary
+    }
+
+    private func modelPickerDetail(for model: ProviderModel) -> String {
+        if model.id == app.settings.modelName {
+            return GenerationRequest.supportsThinking(model: model.id) ? "Selected, thinking supported" : "Selected model"
+        }
+        return GenerationRequest.supportsThinking(model: model.id) ? "Thinking supported" : "Available local model"
     }
 }
 
