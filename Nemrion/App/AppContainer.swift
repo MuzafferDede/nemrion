@@ -21,6 +21,7 @@ final class AppContainer: ObservableObject {
     private let bubbleController: SelectionBubbleController
     private var cancellables: Set<AnyCancellable> = []
     private var didRequestAccessibilityOnLaunch = false
+    private var didAttemptOllamaStartOnLaunch = false
 
     private init() {
         panelViewModel = RewritePanelViewModel()
@@ -70,6 +71,7 @@ final class AppContainer: ObservableObject {
 
         Task {
             await refreshProviderState()
+            startOllamaOnLaunchIfNeeded()
         }
     }
 
@@ -105,9 +107,11 @@ final class AppContainer: ObservableObject {
         }
 
         do {
-            let models = try await provider.availableModels()
+            let models = try await provider.availableModels().sorted {
+                $0.title.localizedStandardCompare($1.title) == .orderedAscending
+            }
             availableModels = models
-            if settings.modelName.isEmpty {
+            if settings.modelName.isEmpty || models.contains(where: { $0.id == settings.modelName }) == false {
                 settings.modelName = models.first?.id ?? "llama3.1"
             }
         } catch {
@@ -131,9 +135,12 @@ final class AppContainer: ObservableObject {
             return
         }
 
+        let configuration = NSWorkspace.OpenConfiguration()
+        configuration.activates = false
+
         workspace.openApplication(
             at: URL(fileURLWithPath: appPath),
-            configuration: NSWorkspace.OpenConfiguration()
+            configuration: configuration
         ) { [weak self] _, _ in
             guard let self else { return }
             Task { @MainActor in
@@ -141,6 +148,14 @@ final class AppContainer: ObservableObject {
                 await self.refreshProviderState()
             }
         }
+    }
+
+    private func startOllamaOnLaunchIfNeeded() {
+        guard didAttemptOllamaStartOnLaunch == false else { return }
+        didAttemptOllamaStartOnLaunch = true
+
+        guard dependencyStatus == .ollamaStopped else { return }
+        startOllama()
     }
 
     func requestAccessibilityPrompt() {

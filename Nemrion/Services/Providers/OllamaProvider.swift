@@ -68,8 +68,17 @@ struct OllamaProvider: AIProvider {
                         )
                     }
 
-                    var responseText = ""
                     var isThinking = false
+                    var inlineParser = InlineThinkingStreamParser()
+                    var didEmitContent = false
+
+                    func yield(_ event: GenerationStreamEvent) {
+                        if case .content = event {
+                            didEmitContent = true
+                        }
+                        continuation.yield(event)
+                    }
+
                     for try await line in bytes.lines {
                         guard line.isEmpty == false else { continue }
                         let data = Data(line.utf8)
@@ -80,42 +89,27 @@ struct OllamaProvider: AIProvider {
                             if isThinking == false {
                                 isThinking = true
                             }
-                            continuation.yield(.thinking(thinking))
+                            yield(.thinking(thinking))
                             continue
                         }
 
                         guard let content = chunk.message?.content, content.isEmpty == false else { continue }
-                        if PromptBuilder.containsThinkingStart(content) {
-                            if isThinking == false {
-                                isThinking = true
-                            }
-                        }
-                        let hasThinkingEnd = PromptBuilder.containsThinkingEnd(content)
-                        if isThinking, hasThinkingEnd == false, PromptBuilder.containsThinkingStart(content) == false {
-                            isThinking = false
-                            continuation.yield(.thinkingEnded)
-                        }
                         if isThinking {
-                            let visibleThinking = PromptBuilder.displayThinkingContent(from: content)
-                            if visibleThinking.isEmpty == false {
-                                continuation.yield(.thinking(visibleThinking))
-                            }
-                        }
-                        if isThinking, hasThinkingEnd {
                             isThinking = false
-                            continuation.yield(.thinkingEnded)
+                            yield(.thinkingEnded)
                         }
-
-                        responseText += content
+                        for event in inlineParser.consume(content) {
+                            yield(event)
+                        }
                     }
 
                     if isThinking {
-                        continuation.yield(.thinkingEnded)
+                        yield(.thinkingEnded)
                     }
-                    let sanitizedResponse = PromptBuilder.removingThinkingArtifacts(from: responseText)
-                    if sanitizedResponse.isEmpty == false {
-                        continuation.yield(.content(sanitizedResponse))
+                    for event in inlineParser.finish() {
+                        yield(event)
                     }
+                    guard didEmitContent else { throw NemrionError.malformedResponse }
                     continuation.finish()
                 } catch {
                     continuation.finish(throwing: error)
@@ -126,6 +120,109 @@ struct OllamaProvider: AIProvider {
                 task.cancel()
             }
         }
+    }
+}
+
+private struct InlineThinkingStreamParser {
+    private var pending = ""
+    private var isThinking = false
+
+    mutating func consume(_ chunk: String) -> [GenerationStreamEvent] {
+        var events: [GenerationStreamEvent] = []
+        var text = pending + chunk
+        pending = ""
+
+        while text.isEmpty == false {
+            if isThinking {
+                if let match = firstMatch(in: text, tokens: Self.thinkingEndTokens) {
+                    let thinking = String(text[..<match.range.lowerBound])
+                    if thinking.isEmpty == false {
+                        events.append(.thinking(thinking))
+                    }
+                    events.append(.thinkingEnded)
+                    isThinking = false
+                    text = String(text[match.range.upperBound...])
+                } else {
+                    let split = splitTrailingPossibleTokenPrefix(text, tokens: Self.thinkingEndTokens)
+                    if split.emit.isEmpty == false {
+                        events.append(.thinking(split.emit))
+                    }
+                    pending = split.pending
+                    break
+                }
+            } else {
+                if let match = firstMatch(in: text, tokens: Self.thinkingStartTokens) {
+                    let visible = String(text[..<match.range.lowerBound])
+                    if visible.isEmpty == false {
+                        events.append(.content(visible))
+                    }
+                    isThinking = true
+                    text = String(text[match.range.upperBound...])
+                } else {
+                    let split = splitTrailingPossibleTokenPrefix(text, tokens: Self.thinkingStartTokens)
+                    if split.emit.isEmpty == false {
+                        events.append(.content(split.emit))
+                    }
+                    pending = split.pending
+                    break
+                }
+            }
+        }
+
+        return events
+    }
+
+    mutating func finish() -> [GenerationStreamEvent] {
+        defer {
+            pending = ""
+            isThinking = false
+        }
+
+        guard pending.isEmpty == false else {
+            return isThinking ? [.thinkingEnded] : []
+        }
+
+        if isThinking {
+            return [.thinking(pending), .thinkingEnded]
+        }
+        return [.content(pending)]
+    }
+
+    private static let thinkingStartTokens = ["<think>", "<|channel>thought"]
+    private static let thinkingEndTokens = ["</think>", "<channel|>"]
+
+    private func firstMatch(in text: String, tokens: [String]) -> (range: Range<String.Index>, token: String)? {
+        tokens
+            .compactMap { token in
+                text.range(of: token, options: .caseInsensitive).map { (range: $0, token: token) }
+            }
+            .min { lhs, rhs in
+                lhs.range.lowerBound < rhs.range.lowerBound
+            }
+    }
+
+    private func splitTrailingPossibleTokenPrefix(
+        _ text: String,
+        tokens: [String]
+    ) -> (emit: String, pending: String) {
+        guard text.isEmpty == false else { return ("", "") }
+
+        let lowercasedText = text.lowercased()
+        let lowercasedTokens = tokens.map { $0.lowercased() }
+        var longestPrefixLength = 0
+
+        for length in 1...text.count {
+            let suffixStart = lowercasedText.index(lowercasedText.endIndex, offsetBy: -length)
+            let suffix = String(lowercasedText[suffixStart...])
+            if lowercasedTokens.contains(where: { $0.hasPrefix(suffix) }) {
+                longestPrefixLength = length
+            }
+        }
+
+        guard longestPrefixLength > 0 else { return (text, "") }
+
+        let splitIndex = text.index(text.endIndex, offsetBy: -longestPrefixLength)
+        return (String(text[..<splitIndex]), String(text[splitIndex...]))
     }
 }
 
@@ -143,59 +240,6 @@ enum PromptBuilder {
             ),
             ChatMessage(role: "user", content: polishUserMessage(source: source, instruction: instruction))
         ]
-    }
-
-    static func removingThinkingArtifacts(from text: String) -> String {
-        var result = text
-        let patterns = [
-            #"<\|channel\>thought\s*.*?<channel\|>"#,
-            #"<think>.*?</think>"#
-        ]
-
-        for pattern in patterns {
-            guard let regex = try? NSRegularExpression(
-                pattern: pattern,
-                options: [.dotMatchesLineSeparators, .caseInsensitive]
-            ) else {
-                continue
-            }
-
-            let range = NSRange(result.startIndex..<result.endIndex, in: result)
-            result = regex.stringByReplacingMatches(in: result, range: range, withTemplate: "")
-        }
-
-        return result.trimmingCharacters(in: .whitespacesAndNewlines)
-    }
-
-    static func containsThinkingStart(_ text: String) -> Bool {
-        text.range(of: #"<\|channel\>thought|<think>"#, options: [.regularExpression, .caseInsensitive]) != nil
-    }
-
-    static func containsThinkingEnd(_ text: String) -> Bool {
-        text.range(of: #"<channel\|>|</think>"#, options: [.regularExpression, .caseInsensitive]) != nil
-    }
-
-    static func displayThinkingContent(from text: String) -> String {
-        var result = text
-        let patterns = [
-            #"<channel\|>.*"#,
-            #"</think>.*"#,
-            #"<\|channel\>thought\s*"#,
-            #"<channel\|>"#,
-            #"<think>"#,
-            #"</think>"#
-        ]
-
-        for pattern in patterns {
-            guard let regex = try? NSRegularExpression(pattern: pattern, options: [.dotMatchesLineSeparators, .caseInsensitive]) else {
-                continue
-            }
-
-            let range = NSRange(result.startIndex..<result.endIndex, in: result)
-            result = regex.stringByReplacingMatches(in: result, range: range, withTemplate: "")
-        }
-
-        return result
     }
 
     static func usesGemmaThinkingToken(_ model: String) -> Bool {

@@ -128,6 +128,12 @@ struct RewritePanelView: View {
                 VStack(alignment: .leading, spacing: 12) {
                     if viewModel.outputText.isEmpty, viewModel.phase == .generating {
                         streamingPlaceholder
+                    } else if viewModel.phase == .generating {
+                        StreamingResultText(text: viewModel.outputText, color: outputColor)
+                            .font(.system(size: NemrionScale.textMd, weight: .medium))
+                            .lineSpacing(5)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .textSelection(.enabled)
                     } else {
                         Text(outputBody)
                             .font(.system(size: NemrionScale.textMd, weight: .medium))
@@ -345,6 +351,61 @@ struct RewritePanelView: View {
         }
         .redacted(reason: .placeholder)
         .shimmering(active: true)
+    }
+}
+
+private struct StreamingResultText: View {
+    let text: String
+    let color: Color
+
+    @State private var stableText = ""
+    @State private var fadingText = ""
+    @State private var fadingOpacity = 1.0
+    @State private var renderedText = ""
+    @State private var fadeGeneration = UUID()
+
+    var body: some View {
+        (Text(stableText) + Text(fadingText).foregroundColor(color.opacity(fadingOpacity)))
+            .foregroundStyle(color)
+            .onAppear {
+                stableText = text
+                renderedText = text
+                fadingText = ""
+                fadingOpacity = 1
+            }
+            .onChange(of: text) { _, newText in
+                animate(to: newText)
+            }
+    }
+
+    private func animate(to newText: String) {
+        guard newText != renderedText else { return }
+
+        let generation = UUID()
+        fadeGeneration = generation
+
+        if newText.hasPrefix(renderedText) {
+            stableText = renderedText
+            fadingText = String(newText.dropFirst(renderedText.count))
+        } else {
+            stableText = ""
+            fadingText = newText
+        }
+
+        renderedText = newText
+        fadingOpacity = 0
+
+        withAnimation(.easeOut(duration: 0.22)) {
+            fadingOpacity = 1
+        }
+
+        Task { @MainActor in
+            try? await Task.sleep(for: .milliseconds(240))
+            guard fadeGeneration == generation else { return }
+            stableText = newText
+            fadingText = ""
+            fadingOpacity = 1
+        }
     }
 }
 
